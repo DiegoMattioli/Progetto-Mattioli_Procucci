@@ -1,5 +1,6 @@
 #include <vector>
 #include <random>
+#include <cmath>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
@@ -10,6 +11,7 @@ struct Boid
     double y{0};
     double vx{10};
     double vy{10};
+    std::vector<int> nearby{};
 };
 
 class Flock
@@ -25,7 +27,7 @@ class Flock
         std::uniform_real_distribution<double> position(0.,100.);
         std::uniform_real_distribution<double> speed(0.,100.);
 
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; ++i)
         {
             double rand_x{position(eng)};
             double rand_y{position(eng)};
@@ -36,27 +38,47 @@ class Flock
         }
     }
 
-    void add(Boid b)
+    void add(const Boid& b)
     //function that adds a single boid to the flock
     {
         flock_.push_back(b);
     }
-    
-    int size()
-    {
-        return flock_.size();
-    }
-
+ 
     void update_position(int refresh_rate)
     //function that updates the position of all boids after: refresh_rate seconds 
     {
-        for (auto it = flock_.begin(), last = flock_.end(); it < last; it++)
+        for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
             (*it).x += refresh_rate * (*it).vx;
             (*it).y += refresh_rate * (*it).vy;
         }
         
     }
+
+    void update_nearby(double d)
+    {
+        for (auto it = flock_.begin(); it < flock_.end(); ++it)
+        {
+            (*it).nearby = {};
+            for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
+            {
+                double distance{std::sqrt(std::pow(((*it).x - (*itt).x), 2) + std::pow(((*it).y - (*itt).y), 2))};
+                if (distance < d && distance != 0)
+                {
+                    (*it).nearby.push_back(itt - flock_.begin());
+                }
+                
+            }
+            
+        }
+        
+    }
+       
+    int size()
+    {
+        return flock_.size();
+    }
+
 
     double get_positionx(int i)
     //function returns the x coordinate of the i th oid in the flock
@@ -78,32 +100,51 @@ class Flock
         }
         else{return -1.;}
     }
+
+    int get_nearby_size(int i)
+    {
+        auto it = (flock_.begin() + i);
+        if (it < flock_.end())
+        {
+            return (*it).nearby.size();
+        }
+        else{return -1;}
+    }
 };
 
 TEST_CASE("Testing the Flock class")
 {
     Flock f{};
+    Boid b{0,0,2,2};
+    Boid b1{1,1,3,4};
+    f.add(b);
+    f.add(b1);
      
     SUBCASE("Testing the add function")
     {
         f.add(10);
-        CHECK(f.size() == 10);
-        Boid b{0,0,2,2};
-        f.add(b);
-        CHECK(f.size() == 11);
+        CHECK(f.size() == 12);
     }
 
     SUBCASE("testing the update_position function")
     {
-        Boid b{0,0,2,2};
-        Boid b1{1,1,3,4};
-        f.add(b);
-        f.add(b1);
         f.update_position(1);
         CHECK(f.get_positionx(0) == 2.);
         CHECK(f.get_positiony(0) == 2.);
         CHECK(f.get_positionx(1) == 4.);
         CHECK(f.get_positiony(1) == 5.);
         CHECK(f.get_positionx(3) == -1.);
+    }
+
+    SUBCASE("testing the update_nearby function")
+    {
+        f.update_nearby(2.);
+        CHECK(f.get_nearby_size(0) == 1);
+        CHECK(f.get_nearby_size(1) == 1);
+        CHECK(f.get_nearby_size(2) == -1);
+        f.update_position(4);
+        f.update_nearby(2.);
+        CHECK(f.get_nearby_size(0) == 0);
+        CHECK(f.get_nearby_size(1) == 0);
     }
 }
