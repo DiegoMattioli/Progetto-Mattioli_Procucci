@@ -55,21 +55,46 @@ class Flock
         
     }
 
-    void update_nearby(double d)
+    void update_velocity(double d, double ds, double s, double a, double c)
+    //function that updates the vector representing the velocity of each boid)
     {
         for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
+            double v_separazionex{0};
+            double v_separazioney{0};
+            double v_allineamentox{0};
+            double v_allineamentoy{0};
+            double x_cm{0};
+            double y_cm{0};
+            double v_coesionex{0};
+            double v_coesioney{0};
             (*it).nearby = {};
+
             for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
             {
                 double distance{std::sqrt(std::pow(((*it).x - (*itt).x), 2) + std::pow(((*it).y - (*itt).y), 2))};
                 if (distance < d && distance != 0)
                 {
                     (*it).nearby.push_back(itt - flock_.begin());
+
+                    x_cm += (*itt).x / (flock_.size()-1);
+                    y_cm += (*itt).y / (flock_.size()-1);
+
+                    if (distance < ds)
+
+                    {
+                        v_separazionex += -(s * ((*itt).x - (*it).x));
+                        v_separazioney += -(s * ((*itt).y - (*it).y));
+                    }
                 }
                 
+                v_allineamentox += (a/(flock_.size()-1)) * ((*itt).vx - (*it).vx);
+                v_allineamentoy += (a/(flock_.size()-1)) * ((*itt).vy - (*it).vy);
             }
-            
+            v_coesionex += c * (x_cm - (*it).x);
+            v_coesioney += c * (y_cm - (*it).y);
+            (*it).vx += (v_allineamentox + v_separazionex + v_coesionex);
+            (*it).vy += (v_allineamentoy + v_separazioney + v_coesioney);
         }
         
     }
@@ -102,6 +127,7 @@ class Flock
     }
 
     int get_nearby_size(int i)
+    //function that returns the amount of boids close to the i th boid
     {
         auto it = (flock_.begin() + i);
         if (it < flock_.end())
@@ -136,14 +162,14 @@ TEST_CASE("Testing the Flock class")
         CHECK(f.get_positionx(3) == -1.);
     }
 
-    SUBCASE("testing the update_nearby function")
+    SUBCASE("testing the update_velocity function")
     {
-        f.update_nearby(2.);
+        f.update_velocity(2., 1., 0.5, 0.1, 0.2);
         CHECK(f.get_nearby_size(0) == 1);
         CHECK(f.get_nearby_size(1) == 1);
         CHECK(f.get_nearby_size(2) == -1);
         f.update_position(4);
-        f.update_nearby(2.);
+        f.update_velocity(2., 1., 0.5, 0.1, 0.2);
         CHECK(f.get_nearby_size(0) == 0);
         CHECK(f.get_nearby_size(1) == 0);
     }
