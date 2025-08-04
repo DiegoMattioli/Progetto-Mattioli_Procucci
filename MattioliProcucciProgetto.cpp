@@ -50,7 +50,24 @@ class Flock
         for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
             (*it).x += refresh_rate * (*it).vx;
+            if ((*it).x < 0.)
+            {
+                (*it).x += (100. * std::floor((*it).y / 100.));
+            }
+            else if ((*it).x > 100.)
+            {
+                (*it).x += -(100. * std::floor((*it).x / 100.));
+            }
+            
             (*it).y += refresh_rate * (*it).vy;
+            if ((*it).y < 0.)
+            {
+                (*it).y += (100. * std::floor((*it).y / 100.));
+            }
+            else if ((*it).y > 100.)
+            {
+                (*it).y += -(100. * std::floor((*it).y / 100.));
+            }
         }
         
     }
@@ -60,14 +77,14 @@ class Flock
     {
         for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
-            double v_separazionex{0};
-            double v_separazioney{0};
-            double v_allineamentox{0};
-            double v_allineamentoy{0};
+            double v_separationx{0};
+            double v_separationy{0};
+            double v_alignementx{0};
+            double v_alignementy{0};
             double x_cm{0};
             double y_cm{0};
-            double v_coesionex{0};
-            double v_coesioney{0};
+            double v_cohesionx{0};
+            double v_cohesiony{0};
             (*it).nearby = {};
 
             for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
@@ -83,18 +100,18 @@ class Flock
                     if (distance < ds)
 
                     {
-                        v_separazionex += -(s * ((*itt).x - (*it).x));
-                        v_separazioney += -(s * ((*itt).y - (*it).y));
+                        v_separationx += -(s * ((*itt).x - (*it).x));
+                        v_separationy += -(s * ((*itt).y - (*it).y));
                     }
                 }
                 
-                v_allineamentox += (a/(flock_.size()-1)) * ((*itt).vx - (*it).vx);
-                v_allineamentoy += (a/(flock_.size()-1)) * ((*itt).vy - (*it).vy);
+                v_alignementx += (a/(flock_.size()-1)) * ((*itt).vx - (*it).vx);
+                v_alignementy += (a/(flock_.size()-1)) * ((*itt).vy - (*it).vy);
             }
-            v_coesionex += c * (x_cm - (*it).x);
-            v_coesioney += c * (y_cm - (*it).y);
-            (*it).vx += (v_allineamentox + v_separazionex + v_coesionex);
-            (*it).vy += (v_allineamentoy + v_separazioney + v_coesioney);
+            v_cohesionx += c * (x_cm - (*it).x);
+            v_cohesiony += c * (y_cm - (*it).y);
+            (*it).vx += (v_alignementx + v_separationx + v_cohesionx);
+            (*it).vy += (v_alignementy + v_separationy + v_cohesiony);
         }
         
     }
@@ -106,7 +123,7 @@ class Flock
 
 
     double get_positionx(int i)
-    //function returns the x coordinate of the i th oid in the flock
+    //function returns the x coordinate of the i th boid in the flock
     {
         auto it = (flock_.begin() + i);
         if (it < flock_.end())
@@ -116,7 +133,7 @@ class Flock
         else{return -1.;}
     }
     double get_positiony(int i)
-    //function returns the x coordinate of the i th oid in the flock
+    //function returns the y coordinate of the i th boid in the flock
     {
         auto it = (flock_.begin() + i);
         if (it < flock_.end())
@@ -124,6 +141,27 @@ class Flock
             return (*it).y;
         }
         else{return -1.;}
+    }
+
+    double get_vx(int i)
+    //function returns the x coordinate of the velocity of the i th boid in the flock
+    {
+        auto it = (flock_.begin() + i);
+        if (it < flock_.end())
+        {
+            return (*it).vx;
+        }
+        else{return 0.;}
+    }
+    double get_vy(int i)
+    //function returns the y coordinate of the velocity of the i th boid in the flock
+    {
+        auto it = (flock_.begin() + i);
+        if (it < flock_.end())
+        {
+            return (*it).vy;
+        }
+        else{return 0.;}
     }
 
     int get_nearby_size(int i)
@@ -160,17 +198,36 @@ TEST_CASE("Testing the Flock class")
         CHECK(f.get_positionx(1) == 4.);
         CHECK(f.get_positiony(1) == 5.);
         CHECK(f.get_positionx(3) == -1.);
+
+        f.update_position(50);
+        CHECK(f.get_positionx(0) == 2.);
+        CHECK(f.get_positiony(0) == 2.);
+        CHECK(f.get_positionx(1) == 54.);
+        CHECK(f.get_positiony(1) == 5.);
     }
 
     SUBCASE("testing the update_velocity function")
     {
-        f.update_velocity(2., 1., 0.5, 0.1, 0.2);
-        CHECK(f.get_nearby_size(0) == 1);
-        CHECK(f.get_nearby_size(1) == 1);
-        CHECK(f.get_nearby_size(2) == -1);
-        f.update_position(4);
-        f.update_velocity(2., 1., 0.5, 0.1, 0.2);
-        CHECK(f.get_nearby_size(0) == 0);
-        CHECK(f.get_nearby_size(1) == 0);
+        SUBCASE("testing the correct updating of the 'nearby' vector of each boid")
+        {
+             f.update_velocity(2., 1., 0.5, 0.1, 0.2);
+            CHECK(f.get_nearby_size(0) == 1);
+            CHECK(f.get_nearby_size(1) == 1);
+            CHECK(f.get_nearby_size(2) == -1);
+            f.update_position(4);
+            f.update_velocity(2., 1., 0.5, 0.1, 0.2);
+            CHECK(f.get_nearby_size(0) == 0);
+            CHECK(f.get_nearby_size(1) == 0);
+        }
+
+        SUBCASE("testing the correct updating of the boids' velocities")
+        {
+            f.update_velocity(3., 2., 0.5, 0.1, 0.2);
+            CHECK(f.get_vx(0) == doctest::Approx(1.8));
+            CHECK(f.get_vy(0) == doctest::Approx(1.9));
+            CHECK(f.get_vx(1) == doctest::Approx(3.2).epsilon(0.01));
+            CHECK(f.get_vy(1) == doctest::Approx(4.1).epsilon(0.01));
+            CHECK(f.get_vx(2) == 0.);
+        }
     }
 }
