@@ -1,17 +1,24 @@
 #include <vector>
 #include <random>
 #include <cmath>
+#include <iostream>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
 struct Boid
 {
-    double x{0};
-    double y{0};
-    double vx{10};
-    double vy{10};
+    double x{0.};
+    double y{0.};
+    double vx{1.0};
+    double vy{1.0};
     std::vector<int> nearby{};
+    double v_sepx{0.};
+    double v_sepy{0.};
+    double v_aligx{0.};
+    double v_aligy{0.};
+    double v_cohex{0.};
+    double v_cohey{0.};
 };
 
 class Flock
@@ -38,7 +45,7 @@ class Flock
         }
     }
 
-    void add(const Boid& b)
+    void add(Boid const& b)
     //function that adds a single boid to the flock
     {
         flock_.push_back(b);
@@ -49,7 +56,11 @@ class Flock
     {
         for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
+            (*it).vx += ((*it).v_sepx + (*it).v_aligx + (*it).v_cohex);
             (*it).x += refresh_rate * (*it).vx;
+            (*it).v_sepx = 0.;
+            (*it).v_aligx = 0.;
+            (*it).v_cohex = 0.;
             if ((*it).x < 0.)
             {
                 (*it).x += (100. * std::floor((*it).y / 100.));
@@ -59,7 +70,11 @@ class Flock
                 (*it).x += -(100. * std::floor((*it).x / 100.));
             }
             
+            (*it).vy += ((*it).v_sepy + (*it).v_aligy + (*it).v_cohey);
             (*it).y += refresh_rate * (*it).vy;
+            (*it).v_sepy = 0.;
+            (*it).v_aligy = 0.;
+            (*it).v_cohey = 0.;
             if ((*it).y < 0.)
             {
                 (*it).y += (100. * std::floor((*it).y / 100.));
@@ -69,7 +84,6 @@ class Flock
                 (*it).y += -(100. * std::floor((*it).y / 100.));
             }
         }
-        
     }
 
     void update_velocity(double d, double ds, double s, double a, double c)
@@ -90,28 +104,31 @@ class Flock
             for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
             {
                 double distance{std::sqrt(std::pow(((*it).x - (*itt).x), 2) + std::pow(((*it).y - (*itt).y), 2))};
-                if (distance < d && distance != 0)
+                if (distance < d && it != itt)
                 {
                     (*it).nearby.push_back(itt - flock_.begin());
 
-                    x_cm += (*itt).x / (flock_.size()-1);
-                    y_cm += (*itt).y / (flock_.size()-1);
+                    x_cm += (*itt).x;
+                    y_cm += (*itt).y;
 
                     if (distance < ds)
-
                     {
-                        v_separationx += -(s * ((*itt).x - (*it).x));
-                        v_separationy += -(s * ((*itt).y - (*it).y));
+                        v_separationx += -((*itt).x - (*it).x);
+                        v_separationy += -((*itt).y - (*it).y);
                     }
                 }
                 
-                v_alignementx += (a/(flock_.size()-1)) * ((*itt).vx - (*it).vx);
-                v_alignementy += (a/(flock_.size()-1)) * ((*itt).vy - (*it).vy);
+                v_alignementx += ((*itt).vx - (*it).vx);
+                v_alignementy += ((*itt).vy - (*it).vy);
             }
-            v_cohesionx += c * (x_cm - (*it).x);
-            v_cohesiony += c * (y_cm - (*it).y);
-            (*it).vx += (v_alignementx + v_separationx + v_cohesionx);
-            (*it).vy += (v_alignementy + v_separationy + v_cohesiony);
+            v_cohesionx += (x_cm / ((*it).nearby.size())) - (*it).x;
+            v_cohesiony += (y_cm / ((*it).nearby.size())) - (*it).y;
+            (*it).v_sepx += v_separationx *s ;
+            (*it).v_sepy += v_separationx *s ;
+            (*it).v_aligx += v_alignementx *(a/(flock_.size()-1));
+            (*it).v_aligy += v_alignementy *(a/(flock_.size()-1));
+            (*it).v_cohex += v_cohesionx *c;
+            (*it).v_cohey += v_cohesiony *c;
         }
         
     }
@@ -210,7 +227,7 @@ TEST_CASE("Testing the Flock class")
     {
         SUBCASE("testing the correct updating of the 'nearby' vector of each boid")
         {
-             f.update_velocity(2., 1., 0.5, 0.1, 0.2);
+            f.update_velocity(2., 1., 0.5, 0.1, 0.2);
             CHECK(f.get_nearby_size(0) == 1);
             CHECK(f.get_nearby_size(1) == 1);
             CHECK(f.get_nearby_size(2) == -1);
@@ -220,14 +237,29 @@ TEST_CASE("Testing the Flock class")
             CHECK(f.get_nearby_size(1) == 0);
         }
 
-        SUBCASE("testing the correct updating of the boids' velocities")
+        SUBCASE("testing the correct updating of the boids' velocities (two boids)")
         {
             f.update_velocity(3., 2., 0.5, 0.1, 0.2);
+            f.update_position(1);
             CHECK(f.get_vx(0) == doctest::Approx(1.8));
             CHECK(f.get_vy(0) == doctest::Approx(1.9));
-            CHECK(f.get_vx(1) == doctest::Approx(3.2).epsilon(0.01));
-            CHECK(f.get_vy(1) == doctest::Approx(4.1).epsilon(0.01));
+            CHECK(f.get_vx(1) == doctest::Approx(3.2));
+            CHECK(f.get_vy(1) == doctest::Approx(4.1));
             CHECK(f.get_vx(2) == 0.);
+        }
+
+        SUBCASE("testing the correct updating of the boids' velocities (three boids)")
+        {
+            Boid b2{2., 2., 1., 1.};
+            f.add(b2);
+            f.update_velocity(3., 2., 0.5, 0.5, 0.2);
+            f.update_position(1);
+            CHECK(f.get_vx(0) == doctest::Approx(1.8));
+            CHECK(f.get_vy(0) == doctest::Approx(2.05));
+            CHECK(f.get_vx(1) == doctest::Approx(2.25));
+            CHECK(f.get_vy(1) == doctest::Approx(2.75));
+            CHECK(f.get_vx(2) == doctest::Approx(1.95));
+            CHECK(f.get_vy(2) == doctest::Approx(2.2));
         }
     }
 }
