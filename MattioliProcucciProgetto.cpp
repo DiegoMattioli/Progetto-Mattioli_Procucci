@@ -1,7 +1,6 @@
 #include <vector>
 #include <random>
 #include <cmath>
-#include <iostream>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
@@ -91,14 +90,8 @@ class Flock
     {
         for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
-            double v_separationx{0};
-            double v_separationy{0};
-            double v_alignementx{0};
-            double v_alignementy{0};
             double x_cm{0};
             double y_cm{0};
-            double v_cohesionx{0};
-            double v_cohesiony{0};
             (*it).nearby = {};
 
             for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
@@ -113,22 +106,22 @@ class Flock
 
                     if (distance < ds)
                     {
-                        v_separationx += -((*itt).x - (*it).x);
-                        v_separationy += -((*itt).y - (*it).y);
+                        (*it).v_sepx += -((*itt).x - (*it).x);
+                        (*it).v_sepy += -((*itt).y - (*it).y);
                     }
                 }
                 
-                v_alignementx += ((*itt).vx - (*it).vx);
-                v_alignementy += ((*itt).vy - (*it).vy);
+                (*it).v_aligx += ((*itt).vx - (*it).vx);
+                (*it).v_aligy += ((*itt).vy - (*it).vy);
             }
-            v_cohesionx += (x_cm / ((*it).nearby.size())) - (*it).x;
-            v_cohesiony += (y_cm / ((*it).nearby.size())) - (*it).y;
-            (*it).v_sepx += v_separationx *s ;
-            (*it).v_sepy += v_separationx *s ;
-            (*it).v_aligx += v_alignementx *(a/(flock_.size()-1));
-            (*it).v_aligy += v_alignementy *(a/(flock_.size()-1));
-            (*it).v_cohex += v_cohesionx *c;
-            (*it).v_cohey += v_cohesiony *c;
+            (*it).v_cohex += (x_cm / ((*it).nearby.size())) - (*it).x;
+            (*it).v_cohey += (y_cm / ((*it).nearby.size())) - (*it).y;
+            (*it).v_sepx *= s ;
+            (*it).v_sepy *= s ;
+            (*it).v_aligx *= a/(flock_.size()-1);
+            (*it).v_aligy *= a/(flock_.size()-1);
+            (*it).v_cohex *= c;
+            (*it).v_cohey *= c;
         }
         
     }
