@@ -22,10 +22,10 @@ namespace mp{
     
         public:
         Boid(double x, double y, double vx, double vy): x_{x}, y_{y}, vx_{vx}, vy_{vy} {}
-        double x()const{return x_;} //returns the x coordinate of the position of the boid
-        double y()const{return y_;} //returns the y coordinate of the position of the boid
-        double vx()const{return vx_;} //returns the x coordinate of the velocity of the boid
-        double vy()const{return vy_;} //returns the y coordinate of the velocity of the boid
+        double x()const; //returns the x coordinate of the position of the boid
+        double y()const; //returns the y coordinate of the position of the boid
+        double vx()const; //returns the x coordinate of the velocity of the boid
+        double vy()const; //returns the y coordinate of the velocity of the boid
         void add_x(double const& add); //modifies the x coordinate of the position of the boid
         void add_y(double const& add); //modifies the y coordinate of the position of the boid
         void add_vx(double const& add); //modifies the x coordinate of the velocity of the boid
@@ -43,9 +43,9 @@ namespace mp{
         void mult_valig(double const& mult);
         void mult_vcohe(double const& mult);
 
-        double get_sumvx()const{return (valigx_ + vsepx_ +vcohex_);}
-        double get_sumvy()const{return (valigy_ + vsepy_ +vcohey_);}
-        int get_nearbysize()const{return nearby_.size();}
+        double get_sumvx()const;
+        double get_sumvy()const;
+        int get_nearbysize()const;
         void add_nearby(int index);
     };
 

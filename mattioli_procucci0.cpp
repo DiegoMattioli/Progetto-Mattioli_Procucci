@@ -4,6 +4,10 @@
 
 namespace mp
 {
+    double mp::Boid::x()const{return x_;}
+    double mp::Boid::y()const{return y_;}
+    double mp::Boid::vx()const{return vx_;}
+    double mp::Boid::vy()const{return vy_;}
     void mp::Boid::add_x(double const& add){{x_ += add;}}
     void mp::Boid::add_y(double const& add){{y_ += add;}}
     void mp::Boid::add_vx(double const& add){{vx_ += add;}}
@@ -37,6 +41,10 @@ namespace mp
         vcohex_ *= mult;
         vcohey_ *= mult;
     }
+
+    double mp::Boid::get_sumvx()const{return (valigx_ + vsepx_ +vcohex_);}
+    double mp::Boid::get_sumvy()const{return (valigy_ + vsepy_ +vcohey_);}
+    int mp::Boid::get_nearbysize()const{return nearby_.size();}
     void mp::Boid::add_nearby(int index){nearby_.push_back(index);}
 
     void mp::Flock::add(int n)
