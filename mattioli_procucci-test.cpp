@@ -1,0 +1,80 @@
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
+#include "mattioli_procucci0.hpp"
+
+TEST_CASE("Testing the Flock class")
+{
+    mp::Flock f{};
+    mp::Boid b{0,0,2,2};
+    mp::Boid b1{1,1,3,4};
+    f.add(b);
+    f.add(b1);
+     
+    SUBCASE("Testing the add function")
+    {
+        f.add(10);
+        CHECK(f.size() == 12);
+    }
+
+    SUBCASE("testing the update_position function")
+    {
+        f.update_position(1);
+        CHECK(f.get_positionx(0) == 2.);
+        CHECK(f.get_positiony(0) == 2.);
+        CHECK(f.get_positionx(1) == 4.);
+        CHECK(f.get_positiony(1) == 5.);
+        CHECK(f.get_positionx(3) == -1.);
+
+        f.update_position(50);
+        CHECK(f.get_positionx(0) == 2.);
+        CHECK(f.get_positiony(0) == 2.);
+        CHECK(f.get_positionx(1) == 54.);
+        CHECK(f.get_positiony(1) == 5.);
+
+        mp::Boid b2{3., 3., 2.1, 1.4};
+        f.add(b2);
+        f.update_position(3);
+        CHECK(f.get_positionx(2) == doctest::Approx(9.3));
+        CHECK(f.get_positiony(2) == doctest::Approx(7.2));
+    }
+
+    SUBCASE("testing the update_velocity function")
+    {
+        SUBCASE("testing the correct updating of the 'nearby' vector of each boid")
+        {
+            f.update_velocity(2., 1., 0.5, 0.1, 0.2);
+            CHECK(f.get_nearby_size(0) == 1);
+            CHECK(f.get_nearby_size(1) == 1);
+            CHECK(f.get_nearby_size(2) == -1);
+            f.update_position(4);
+            f.update_velocity(2., 1., 0.5, 0.1, 0.2);
+            CHECK(f.get_nearby_size(0) == 0);
+            CHECK(f.get_nearby_size(1) == 0);
+        }
+
+        SUBCASE("testing the correct updating of the boids' velocities (two boids)")
+        {
+            f.update_velocity(3., 2., 0.5, 0.1, 0.2);
+            f.update_position(1);
+            CHECK(f.get_vx(0) == doctest::Approx(1.8));
+            CHECK(f.get_vy(0) == doctest::Approx(1.9));
+            CHECK(f.get_vx(1) == doctest::Approx(3.2));
+            CHECK(f.get_vy(1) == doctest::Approx(4.1));
+            CHECK(f.get_vx(2) == 0.);
+        }
+
+        SUBCASE("testing the correct updating of the boids' velocities (three boids)")
+        {
+            mp::Boid b2{2., 2., 1., 1.};
+            f.add(b2);
+            f.update_velocity(3., 2., 0.5, 0.5, 0.2);
+            f.update_position(1);
+            CHECK(f.get_vx(0) == doctest::Approx(1.8));
+            CHECK(f.get_vy(0) == doctest::Approx(2.05));
+            CHECK(f.get_vx(1) == doctest::Approx(2.25));
+            CHECK(f.get_vy(1) == doctest::Approx(2.75));
+            CHECK(f.get_vx(2) == doctest::Approx(1.95));
+            CHECK(f.get_vy(2) == doctest::Approx(2.2));
+        }
+    }
+}
