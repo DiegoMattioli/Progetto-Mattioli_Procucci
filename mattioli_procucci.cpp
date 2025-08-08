@@ -5,19 +5,64 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-struct Boid
+class Boid
 {
-    double x{0.};
-    double y{0.};
-    double vx{1.0};
-    double vy{1.0};
-    std::vector<int> nearby{};
-    double v_sepx{0.};
-    double v_sepy{0.};
-    double v_aligx{0.};
-    double v_aligy{0.};
-    double v_cohex{0.};
-    double v_cohey{0.};
+    private:
+    std::vector<int> nearby_{};
+    double vsepx_{0.};
+    double vsepy_{0.};
+    double valigx_{0.};
+    double valigy_{0.};
+    double vcohex_{0.};
+    double vcohey_{0.};
+    double x_;
+    double y_;
+    double vx_;
+    double vy_;
+    
+    public:
+    Boid(double x, double y, double vx, double vy): x_{x}, y_{y}, vx_{vx}, vy_{vy} {}
+        double x()const{return x_;}
+        double y()const{return y_;}
+        double vx()const{return vx_;}
+        double vy()const{return vy_;}
+        void add_x(double const& add){x_ += add;}
+        void add_y(double const& add){y_ += add;}
+        void add_vx(double const& add){vx_ += add;}
+        void add_vy(double const& add){vy_ += add;}
+    
+
+    void reset()
+    {
+        nearby_ = {};
+        vsepx_ = 0.;
+        vsepy_ = 0.;
+        valigx_ = 0.;
+        valigy_ = 0.;
+        vcohex_ = 0.;
+        vcohey_ = 0.;
+    }
+
+    void add_vsepx(double const& add){vsepx_ += add;}
+    void add_vsepy(double const& add){vsepy_ += add;}
+    void add_valigx(double const& add){valigx_ += add;}
+    void add_valigy(double const& add){valigy_ += add;}
+    void add_vcohex(double const& add){vcohex_ += add;}
+    void add_vcohey(double const& add){vcohey_ += add;}
+    void mult_vsep(double const& mult){
+        vsepx_ *= mult;
+        vsepy_ *= mult;}
+    void mult_valig(double const& mult){
+        valigx_ *= mult;
+        valigy_ *= mult;}
+    void mult_vcohe(double const& mult){
+        vcohex_ *= mult;
+        vcohey_ *= mult;
+    }
+    double get_sumvx()const{return (valigx_ + vsepx_ +vcohex_);}
+    double get_sumvy()const{return (valigy_ + vsepy_ +vcohey_);}
+    int get_nearbysize()const{return nearby_.size();}
+    void add_nearby(int index){nearby_.push_back(index);}
 };
 
 class Flock
@@ -55,73 +100,64 @@ class Flock
     {
         for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
-            (*it).vx += ((*it).v_sepx + (*it).v_aligx + (*it).v_cohex);
-            (*it).x += refresh_rate * (*it).vx;
-            (*it).v_sepx = 0.;
-            (*it).v_aligx = 0.;
-            (*it).v_cohex = 0.;
-            if ((*it).x < 0.)
+            (*it).add_vx((*it).get_sumvx());
+            (*it).add_x(refresh_rate * (*it).vx());
+            if ((*it).x() < 0.)
             {
-                (*it).x += (100. * std::floor((*it).y / 100.));
+                (*it).add_x(100. * std::floor((*it).x() / 100.));
             }
-            else if ((*it).x > 100.)
+            else if ((*it).x() > 100.)
             {
-                (*it).x += -(100. * std::floor((*it).x / 100.));
+                (*it).add_x(-100. * std::floor((*it).x() / 100.));
             }
             
-            (*it).vy += ((*it).v_sepy + (*it).v_aligy + (*it).v_cohey);
-            (*it).y += refresh_rate * (*it).vy;
-            (*it).v_sepy = 0.;
-            (*it).v_aligy = 0.;
-            (*it).v_cohey = 0.;
-            if ((*it).y < 0.)
+            (*it).add_vy((*it).get_sumvy());
+            (*it).add_y(refresh_rate * (*it).vy());
+            (*it).reset();
+            if ((*it).y() < 0.)
             {
-                (*it).y += (100. * std::floor((*it).y / 100.));
+                (*it).add_y(100. * std::floor((*it).y() / 100.));
             }
-            else if ((*it).y > 100.)
+            else if ((*it).y() > 100.)
             {
-                (*it).y += -(100. * std::floor((*it).y / 100.));
+                (*it).add_y(-100. * std::floor((*it).y() / 100.));
             }
         }
     }
 
-    void update_velocity(double d, double ds, double s, double a, double c)
+    void update_velocity(double const& d, double const& ds, double const& s, double const& a, double const& c)
     //function that updates the vector representing the velocity of each boid)
     {
         for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
             double x_cm{0};
             double y_cm{0};
-            (*it).nearby = {};
 
             for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
             {
-                double distance{std::sqrt(std::pow(((*it).x - (*itt).x), 2) + std::pow(((*it).y - (*itt).y), 2))};
+                double distance{std::sqrt(std::pow(((*it).x() - (*itt).x()), 2) + std::pow(((*it).y() - (*itt).y()), 2))};
                 if (distance < d && it != itt)
                 {
-                    (*it).nearby.push_back(itt - flock_.begin());
+                    (*it).add_nearby(itt - flock_.begin());
 
-                    x_cm += (*itt).x;
-                    y_cm += (*itt).y;
+                    x_cm += (*itt).x();
+                    y_cm += (*itt).y();
 
                     if (distance < ds)
                     {
-                        (*it).v_sepx += -((*itt).x - (*it).x);
-                        (*it).v_sepy += -((*itt).y - (*it).y);
+                        (*it).add_vsepx(-((*itt).x() - (*it).x()));
+                        (*it).add_vsepy(-((*itt).y() - (*it).y()));
                     }
                 }
                 
-                (*it).v_aligx += ((*itt).vx - (*it).vx);
-                (*it).v_aligy += ((*itt).vy - (*it).vy);
+                (*it).add_valigx((*itt).vx() - (*it).vx());
+                (*it).add_valigy((*itt).vy() - (*it).vy());
             }
-            (*it).v_cohex += (x_cm / ((*it).nearby.size())) - (*it).x;
-            (*it).v_cohey += (y_cm / ((*it).nearby.size())) - (*it).y;
-            (*it).v_sepx *= s ;
-            (*it).v_sepy *= s ;
-            (*it).v_aligx *= a/(flock_.size()-1);
-            (*it).v_aligy *= a/(flock_.size()-1);
-            (*it).v_cohex *= c;
-            (*it).v_cohey *= c;
+            (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
+            (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
+            (*it).mult_vsep(s);
+            (*it).mult_valig(a/(flock_.size()-1));
+            (*it).mult_vcohe(c);
         }
         
     }
@@ -138,7 +174,7 @@ class Flock
         auto it = (flock_.begin() + i);
         if (it < flock_.end())
         {
-            return (*it).x;
+            return (*it).x();
         }
         else{return -1.;}
     }
@@ -148,7 +184,7 @@ class Flock
         auto it = (flock_.begin() + i);
         if (it < flock_.end())
         {
-            return (*it).y;
+            return (*it).y();
         }
         else{return -1.;}
     }
@@ -159,7 +195,7 @@ class Flock
         auto it = (flock_.begin() + i);
         if (it < flock_.end())
         {
-            return (*it).vx;
+            return (*it).vx();
         }
         else{return 0.;}
     }
@@ -169,7 +205,7 @@ class Flock
         auto it = (flock_.begin() + i);
         if (it < flock_.end())
         {
-            return (*it).vy;
+            return (*it).vy();
         }
         else{return 0.;}
     }
@@ -180,7 +216,7 @@ class Flock
         auto it = (flock_.begin() + i);
         if (it < flock_.end())
         {
-            return (*it).nearby.size();
+            return (*it).get_nearbysize();
         }
         else{return -1;}
     }
