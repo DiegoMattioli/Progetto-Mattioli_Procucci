@@ -22,15 +22,14 @@ class Boid
     
     public:
     Boid(double x, double y, double vx, double vy): x_{x}, y_{y}, vx_{vx}, vy_{vy} {}
-        double x()const{return x_;}
-        double y()const{return y_;}
-        double vx()const{return vx_;}
-        double vy()const{return vy_;}
-        void add_x(double const& add){x_ += add;}
-        void add_y(double const& add){y_ += add;}
-        void add_vx(double const& add){vx_ += add;}
-        void add_vy(double const& add){vy_ += add;}
-    
+    double x()const{return x_;} //returns the x coordinate of the position of the boid
+    double y()const{return y_;} //returns the y coordinate of the position of the boid
+    double vx()const{return vx_;} //returns the x coordinate of the velocity of the boid
+    double vy()const{return vy_;} //returns the y coordinate of the velocity of the boid
+    void add_x(double const& add){x_ += add;} //modifies the x coordinate of the position of the boid
+    void add_y(double const& add){y_ += add;} //modifies the y coordinate of the position of the boid
+    void add_vx(double const& add){vx_ += add;} //modifies the x coordinate of the velocity of the boid
+    void add_vy(double const& add){vy_ += add;} //modifies the y coordinate of the velocity of the boid
 
     void reset()
     {
