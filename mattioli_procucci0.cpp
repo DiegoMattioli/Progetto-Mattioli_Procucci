@@ -32,15 +32,15 @@ namespace mp
     void mp::Boid::add_vcohex(double const& add){vcohex_ += add;}
     void mp::Boid::add_vcohey(double const& add){vcohey_ += add;}
 
-    void mp::Boid::mult_vsep(double const& mult){
-        vsepx_ *= mult;
-        vsepy_ *= mult;}
-    void mp::Boid::mult_valig(double const& mult){
-        valigx_ *= mult;
-        valigy_ *= mult;}
-    void mp::Boid::mult_vcohe(double const& mult){
-        vcohex_ *= mult;
-        vcohey_ *= mult;
+    void mp::Boid::mult_vsep(double const& multiply){
+        vsepx_ *= multiply;
+        vsepy_ *= multiply;}
+    void mp::Boid::mult_valig(double const& multiply){
+        valigx_ *= multiply;
+        valigy_ *= multiply;}
+    void mp::Boid::mult_vcohe(double const& multiply){
+        vcohex_ *= multiply;
+        vcohey_ *= multiply;
     }
 
     double mp::Boid::get_sumvx()const{return (valigx_ + vsepx_ +vcohex_);}
