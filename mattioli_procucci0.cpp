@@ -45,7 +45,7 @@ namespace mp
 
     double mp::Boid::get_sumvx()const{return (valigx_ + vsepx_ +vcohex_);}
     double mp::Boid::get_sumvy()const{return (valigy_ + vsepy_ +vcohey_);}
-    int mp::Boid::get_nearbysize()const{return nearby_.size();}
+    int mp::Boid::get_nearbysize()const{return static_cast<int>(nearby_.size());}
     void mp::Boid::add_nearby(int index){nearby_.push_back(index);}
 
     void mp::Flock::add(int n)
@@ -111,7 +111,7 @@ namespace mp
                 double distance{std::sqrt(std::pow(((*it).x() - (*itt).x()), 2) + std::pow(((*it).y() - (*itt).y()), 2))};
                 if (distance < d && it != itt)
                 {
-                    (*it).add_nearby(itt - flock_.begin());
+                    (*it).add_nearby(static_cast<int>(itt - flock_.begin()));
 
                     x_cm += (*itt).x();
                     y_cm += (*itt).y();
@@ -129,12 +129,12 @@ namespace mp
             (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
             (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
             (*it).mult_vsep(s);
-            (*it).mult_valig(a/(flock_.size()-1));
+            (*it).mult_valig(a/(static_cast<double>(flock_.size())-1.));
             (*it).mult_vcohe(c);
         }
     }
 
-    int mp::Flock::size(){return flock_.size();}
+    int mp::Flock::size(){return static_cast<int>(flock_.size());}
 
     double mp::Flock::get_positionx(int i)
     {
