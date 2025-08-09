@@ -1,6 +1,6 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
 #include "mattioli_procucci0.hpp"
+#include "doctest.h"
 
 TEST_CASE("Testing the Flock class")
 {
@@ -23,7 +23,7 @@ TEST_CASE("Testing the Flock class")
         CHECK(f.get_positiony(0) == 2.);
         CHECK(f.get_positionx(1) == 4.);
         CHECK(f.get_positiony(1) == 5.);
-        CHECK(f.get_positionx(3) == -1.);
+        CHECK_THROWS(f.get_positionx(3));
 
         f.update_position(50);
         CHECK(f.get_positionx(0) == 2.);
@@ -45,7 +45,7 @@ TEST_CASE("Testing the Flock class")
             f.update_velocity(2., 1., 0.5, 0.1, 0.2);
             CHECK(f.get_nearby_size(0) == 1);
             CHECK(f.get_nearby_size(1) == 1);
-            CHECK(f.get_nearby_size(2) == -1);
+            CHECK_THROWS(f.get_nearby_size(2));
             f.update_position(4);
             f.update_velocity(2., 1., 0.5, 0.1, 0.2);
             CHECK(f.get_nearby_size(0) == 0);
@@ -60,7 +60,7 @@ TEST_CASE("Testing the Flock class")
             CHECK(f.get_vy(0) == doctest::Approx(1.9));
             CHECK(f.get_vx(1) == doctest::Approx(3.2));
             CHECK(f.get_vy(1) == doctest::Approx(4.1));
-            CHECK(f.get_vx(2) == 0.);
+            CHECK_THROWS(f.get_vx(2));
         }
 
         SUBCASE("testing the correct updating of the boids' velocities (three boids)")

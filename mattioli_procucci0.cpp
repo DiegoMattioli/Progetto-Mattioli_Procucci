@@ -1,6 +1,7 @@
 #include "mattioli_procucci0.hpp"
 #include <random>
 #include <cmath>
+#include <stdexcept>
 
 namespace mp
 {
@@ -142,7 +143,7 @@ namespace mp
         {
             return (*it).x();
         }
-        else{return -1.;}
+        else{throw std::runtime_error{"index out of range"};}
     }
 
     double mp::Flock::get_positiony(int i)
@@ -152,7 +153,7 @@ namespace mp
         {
             return (*it).y();
         }
-        else{return -1.;}
+        else{throw std::runtime_error{"index out of range"};}
     }
 
     double mp::Flock::get_vx(int i)
@@ -162,7 +163,7 @@ namespace mp
         {
             return (*it).vx();
         }
-        else{return 0.;}
+        else{throw std::runtime_error{"index out of range"};}
     }
     double mp::Flock::get_vy(int i)
     {
@@ -171,7 +172,7 @@ namespace mp
         {
             return (*it).vy();
         }
-        else{return 0.;}
+        else{throw std::runtime_error{"index out of range"};}
     }
 
     int mp::Flock::get_nearby_size(int i)
@@ -181,7 +182,7 @@ namespace mp
         {
             return (*it).get_nearbysize();
         }
-        else{return -1;}
+        else{throw std::runtime_error{"index out of range"};}
     }
     
 }
