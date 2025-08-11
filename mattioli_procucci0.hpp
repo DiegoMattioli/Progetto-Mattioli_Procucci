@@ -5,6 +5,16 @@
 
 namespace mp{
 
+    struct Parameters
+    {
+        double distance;
+        double separation_distance;
+        double separation;
+        double alignement;
+        double cohesion;
+    };
+    
+
     class Boid
     {
         private:
@@ -53,8 +63,14 @@ namespace mp{
     {
         private:
         std::vector<Boid> flock_{};
+        double d_;
+        double ds_;
+        double s_;
+        double a_;
+        double c_;
 
         public:
+        Flock(Parameters const& p): d_{p.distance}, ds_{p.separation_distance}, s_{p.separation}, a_{p.alignement}, c_{p.cohesion} {}
         void add(int n); //function adds n boids to the flock, their position and velocity are randomly generated
     
 
@@ -63,7 +79,7 @@ namespace mp{
         void update_position(int refresh_rate);
         //function that updates the position of all boids after: refresh_rate seconds 
 
-        void update_velocity(double const& d, double const& ds, double const& s, double const& a, double const& c);
+        void update_velocity();
         //function that updates the vector representing the velocity of each boid)
        
         int size();

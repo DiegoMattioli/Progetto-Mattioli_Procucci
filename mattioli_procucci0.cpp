@@ -99,7 +99,7 @@ namespace mp
         }
     }
 
-    void mp::Flock::update_velocity(double const& d, double const& ds, double const& s, double const& a, double const& c)
+    void mp::Flock::update_velocity()
     {
         for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
@@ -110,14 +110,14 @@ namespace mp
             for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
             {
                 double distance{std::sqrt(std::pow(((*it).x() - (*itt).x()), 2) + std::pow(((*it).y() - (*itt).y()), 2))};
-                if (distance < d && it != itt)
+                if (distance < d_ && it != itt)
                 {
                     (*it).add_nearby(static_cast<int>(itt - flock_.begin()));
 
                     x_cm += (*itt).x();
                     y_cm += (*itt).y();
 
-                    if (distance < ds)
+                    if (distance < ds_)
                     {
                         (*it).add_vsepx(-((*itt).x() - (*it).x()));
                         (*it).add_vsepy(-((*itt).y() - (*it).y()));
@@ -133,9 +133,10 @@ namespace mp
                 (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
                 (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
             }
-            (*it).mult_vsep(s);
-            (*it).mult_valig(a/(static_cast<double>(flock_.size())-1.));
-            (*it).mult_vcohe(c);
+            (*it).mult_vsep(s_);
+            if (flock_.size() >= 2){(*it).mult_valig(a_/(static_cast<double>(flock_.size())-1.));}
+            else{(*it).mult_valig(0);}
+            (*it).mult_vcohe(c_);
         }
     }
 
