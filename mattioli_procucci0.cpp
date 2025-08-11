@@ -103,6 +103,7 @@ namespace mp
     {
         for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
+            (*it).reset();
             double x_cm{0};
             double y_cm{0};
 
@@ -126,8 +127,12 @@ namespace mp
                 (*it).add_valigx((*itt).vx() - (*it).vx());
                 (*it).add_valigy((*itt).vy() - (*it).vy());
             }
-            (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
-            (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
+
+            if ((*it).get_nearbysize() != 0)
+            {
+                (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
+                (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
+            }
             (*it).mult_vsep(s);
             (*it).mult_valig(a/(static_cast<double>(flock_.size())-1.));
             (*it).mult_vcohe(c);

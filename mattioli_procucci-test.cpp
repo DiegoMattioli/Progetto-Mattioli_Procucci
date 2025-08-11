@@ -1,6 +1,8 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "mattioli_procucci0.hpp"
 #include "doctest.h"
+#include <iostream>
+#include <cmath>
 
 TEST_CASE("Testing the Flock class")
 {
@@ -77,4 +79,25 @@ TEST_CASE("Testing the Flock class")
             CHECK(f.get_vy(2) == doctest::Approx(2.2));
         }
     }
+}
+
+TEST_CASE("Testing flock simulation all together")
+{
+    mp::Flock f{};
+    f.add(11);
+    REQUIRE(f.size() == 11);
+
+    for (int i = 0; i < 20; ++i)
+    {
+        f.update_velocity(3., 2., 0.5, 0.5, 0.5);
+        f.update_position(1);
+        for (int j = 0; j < 11; ++j)
+        {
+            CHECK(std::isnan(f.get_positionx(j)) == false);
+            CHECK(std::isnan(f.get_positiony(j)) == false);
+            CHECK(std::isnan(f.get_vx(j)) == false);
+            CHECK(std::isnan(f.get_vy(j)) == false);
+        }
+    }
+    
 }
