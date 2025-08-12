@@ -32,8 +32,8 @@ namespace df
                 image.create(100, 100, sf::Color::Black);
                 for (int i = 0; i < f.size(); ++i)
                 {
-                    int x = static_cast<int>(std::floor(f.get_positionx(i)));
-                    int y = static_cast<int>(std::floor(f.get_positiony(i)));
+                    unsigned int x = static_cast<unsigned int>(std::floor(f.get_positionx(i)));
+                    unsigned int y = static_cast<unsigned int>(std::floor(f.get_positiony(i)));
                     image.setPixel(x, y, sf::Color::White);
                 }
                 f.update_position(1);
