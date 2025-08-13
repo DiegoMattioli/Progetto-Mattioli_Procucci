@@ -51,8 +51,8 @@ namespace mp
     void mp::Flock::add(int n)
     {
         std::default_random_engine eng;
-        std::uniform_real_distribution<double> position(0.,100.);
-        std::uniform_real_distribution<double> speed(0.,100.);
+        std::uniform_real_distribution<double> position(0., 200.);
+        std::uniform_real_distribution<double> speed(0.,10.);
 
         for (int i = 0; i < n; ++i)
         {
@@ -78,11 +78,11 @@ namespace mp
             (*it).add_x(refresh_rate * (*it).vx());
             if ((*it).x() < 0.)
             {
-                (*it).add_x(100. * std::floor((*it).x() / 100.));
+                (*it).add_x(200. * std::floor((*it).x() / 200.));
             }
-            else if ((*it).x() > 100.)
+            else if ((*it).x() > 200.)
             {
-                (*it).add_x(-100. * std::floor((*it).x() / 100.));
+                (*it).add_x(-200. * std::floor((*it).x() / 200.));
             }
             
             (*it).add_vy((*it).get_sumvy());
@@ -90,11 +90,11 @@ namespace mp
             (*it).reset();
             if ((*it).y() < 0.)
             {
-                (*it).add_y(100. * std::floor((*it).y() / 100.));
+                (*it).add_y(200. * std::floor((*it).y() / 200.));
             }
-            else if ((*it).y() > 100.)
+            else if ((*it).y() > 200.)
             {
-                (*it).add_y(-100. * std::floor((*it).y() / 100.));
+                (*it).add_y(-200. * std::floor((*it).y() / 200.));
             }
         }
     }
@@ -109,7 +109,7 @@ namespace mp
 
             for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
             {
-                double distance{std::sqrt(std::pow(((*it).x() - (*itt).x()), 2) + std::pow(((*it).y() - (*itt).y()), 2))};
+                double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
                 if (distance < d_ && it != itt)
                 {
                     (*it).add_nearby(static_cast<int>(itt - flock_.begin()));

@@ -6,6 +6,7 @@
 namespace df
 {
     void draw_flock(mp::Flock& f);
+    void draw_flock(mp::Flock& f0, mp::Flock& f1);
 }
 
 #endif

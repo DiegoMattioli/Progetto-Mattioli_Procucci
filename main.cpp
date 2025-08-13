@@ -32,10 +32,13 @@ int main() {
     }
     else
     {
-      mp::Parameters p{d, ds, s, a, c};
-      mp::Flock f{p};
-      f.add(n);
-      df::draw_flock(f);
+      mp::Parameters p0{d, ds, s, a, c};
+      mp::Parameters p1{100., 10., 0.5, 0.5, 0.5};
+      mp::Flock f0{p0};
+      mp::Flock f1{p1};
+      f0.add(n);
+      f1.add(20);
+      df::draw_flock(f0, f1);
     }   
  } 
  catch (std::exception const& e) {
