@@ -72,31 +72,40 @@ namespace mp
 
     void mp::Flock::update_position(int refresh_rate)
     {
-        for (auto it = flock_.begin(); it < flock_.end(); ++it)
+        mean_vx_ = 0.;
+        mean_vy_ = 0.;
+        if (static_cast<int>(flock_.size()) > 0)
         {
-            (*it).add_vx((*it).get_sumvx());
-            (*it).add_x(refresh_rate * (*it).vx());
-            if ((*it).x() < 0.)
+            for (auto it = flock_.begin(); it < flock_.end(); ++it)
             {
-                (*it).add_x(200. * std::floor((*it).x() / 200.));
-            }
-            else if ((*it).x() > 200.)
-            {
-                (*it).add_x(-200. * std::floor((*it).x() / 200.));
-            }
+                (*it).add_vx((*it).get_sumvx());
+                mean_vx_ += (*it).vx() / static_cast<double>(flock_.size());
+                (*it).add_x(refresh_rate * (*it).vx());
+                if ((*it).x() < 0.)
+                {
+                    (*it).add_x(200. * std::floor((*it).x() / 200.));
+                }
+                else if ((*it).x() > 200.)
+                {
+                    (*it).add_x(-200. * std::floor((*it).x() / 200.));
+                }
             
-            (*it).add_vy((*it).get_sumvy());
-            (*it).add_y(refresh_rate * (*it).vy());
-            (*it).reset();
-            if ((*it).y() < 0.)
-            {
-                (*it).add_y(200. * std::floor((*it).y() / 200.));
-            }
-            else if ((*it).y() > 200.)
-            {
-                (*it).add_y(-200. * std::floor((*it).y() / 200.));
+                (*it).add_vy((*it).get_sumvy());
+                mean_vy_ += (*it).vy() / static_cast<double>(flock_.size());
+                (*it).add_y(refresh_rate * (*it).vy());
+                (*it).reset();
+                if ((*it).y() < 0.)
+                {
+                    (*it).add_y(200. * std::floor((*it).y() / 200.));
+                }
+                else if ((*it).y() > 200.)
+                {   
+                    (*it).add_y(-200. * std::floor((*it).y() / 200.));
+                }
             }
         }
+        else{throw std::runtime_error{"The flock must contain at least one boid"};}
+        
     }
 
     void mp::Flock::update_velocity()
@@ -190,5 +199,7 @@ namespace mp
         }
         else{throw std::runtime_error{"index out of range"};}
     }
+
+    double mp::Flock::get_mean_velocity(){return std::hypot(mean_vx_, mean_vy_);}
     
 }

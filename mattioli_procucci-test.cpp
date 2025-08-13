@@ -29,9 +29,9 @@ TEST_CASE("Testing the Flock class")
         CHECK_THROWS(f.get_positionx(3));
 
         f.update_position(50);
-        CHECK(f.get_positionx(0) == 2.);
-        CHECK(f.get_positiony(0) == 2.);
-        CHECK(f.get_positionx(1) == 54.);
+        CHECK(f.get_positionx(0) == 102.);
+        CHECK(f.get_positiony(0) == 102.);
+        CHECK(f.get_positionx(1) == 154.);
         CHECK(f.get_positiony(1) == 5.);
 
         mp::Boid b2{3., 3., 2.1, 1.4};

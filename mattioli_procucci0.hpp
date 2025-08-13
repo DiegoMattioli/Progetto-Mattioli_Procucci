@@ -8,10 +8,21 @@ namespace mp{
     struct Parameters
     {
         double distance;
+        //parameter that defines when two or more boids can be considered close to each other
+        //if the distance between two or more boids is smaller than this parameter, they are considered 'close to each other'
         double separation_distance;
+        //parameter that defines the minimum distance boids should keep from each other, if the distance between two
+        //or more boids is smaller than this parameter they will make try to distance themselves in order to avoid collisions
         double separation;
+        //parameter that determines how strongly boids diverge from each other, high values of 's' will result in a flock
+        //whose boids are further apart from each other
         double alignement;
+        //parameter that determines the alignement of the blods in the flock, high values of 'a' will result in a flock
+        //whose boids follow a specific direction uniformly
         double cohesion;
+        //parameter that determines the cohesione between the boids of the flock, high values of 'c' will result in a flock
+        //whose boids don't diverge form the group 
+
     };
     
 
@@ -68,6 +79,11 @@ namespace mp{
         double s_;
         double a_;
         double c_;
+        //parameters fo the flock (defined in the struct mp::Parameters)
+
+        double mean_vx_;
+        double mean_vy_;
+        //coordinates of the mean velocity of the boids in the flock
 
         public:
         Flock(Parameters const& p): d_{p.distance}, ds_{p.separation_distance}, s_{p.separation}, a_{p.alignement}, c_{p.cohesion} {}
@@ -98,6 +114,9 @@ namespace mp{
 
         int get_nearby_size(int i);
         //function that returns the amount of boids close to the i th boid
+
+        double get_mean_velocity();
+        //functiom that returns the mean velocity of the boids in the flock
     };
 };
 
