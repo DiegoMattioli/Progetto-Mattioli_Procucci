@@ -32,42 +32,60 @@ namespace mp{
         std::vector<int> nearby_{};
         double vsepx_{0.};
         double vsepy_{0.};
+        //modification to the boid's velocity after applying the rule of separation
+
         double valigx_{0.};
         double valigy_{0.};
+        //modification to the boid's velocity after applying the rule of alignement
+
         double vcohex_{0.};
         double vcohey_{0.};
+        //modification to the boid's velocity after applying the rule of cohesion
+
         double x_;
         double y_;
         double vx_;
         double vy_;
+        //boid's coordinates
     
         public:
         Boid(double x, double y, double vx, double vy): x_{x}, y_{y}, vx_{vx}, vy_{vy} {}
-        double x()const; //returns the x coordinate of the position of the boid
-        double y()const; //returns the y coordinate of the position of the boid
-        double vx()const; //returns the x coordinate of the velocity of the boid
-        double vy()const; //returns the y coordinate of the velocity of the boid
-        void add_x(double const& add); //modifies the x coordinate of the position of the boid
-        void add_y(double const& add); //modifies the y coordinate of the position of the boid
-        void add_vx(double const& add); //modifies the x coordinate of the velocity of the boid
-        void add_vy(double const& add); //modifies the y coordinate of the velocity of the boid
+        double x()const;
+        double y()const;
+        //return the  coordinates of the boid's position
+        double vx()const;
+        double vy()const;
+        //return the coordinates of the boid's velocity
+
+        void add_x(double const& add);
+        void add_y(double const& add);
+        //modifies the coordinates of the boid's position
+        void add_vx(double const& add);
+        void add_vy(double const& add);
+        //modifies the coordinates of the boid's velocity
 
         void reset();
+        //resets to 0 the values of vsepx_, vsepy_, valigx_, valigy_, vcohex_, vcohey_
 
         void add_vsepx(double const& add);
         void add_vsepy(double const& add);
+        //modifies vsepx_, vsepy_ (addition)
         void add_valigx(double const& add);
         void add_valigy(double const& add);
+        //modifies valig_, valigy_ (addition)
         void add_vcohex(double const& add);
         void add_vcohey(double const& add);
-        void mult_vsep(double const& mult);
-        void mult_valig(double const& mult);
-        void mult_vcohe(double const& mult);
+        //modifies vcohex_, vcohey_ (addition)
 
-        double get_sumvx()const;
-        double get_sumvy()const;
-        int get_nearbysize()const;
+        void mult_vsep(double const& mult); //modifies vsepx_, vsepy_ (multiplication)
+        void mult_valig(double const& mult); //modifies valig_, valigy_ (multiplication)
+        void mult_vcohe(double const& mult); //modifies vcohex_, vcohey_ (multiplication)
+
+        double get_sumvx()const; //adds toghether vsepx_, valigx_, vcohex_ and returns the sum
+        double get_sumvy()const; //adds toghether vsepy_, valigy_, vcohey_ and returns the sum
+        int get_nearbysize()const; //returns the amount of boids close to this particular boid
         void add_nearby(int index);
+        //adds an index to the vector containing the indexes of the boids that are considered 'close' to this particular boid
     };
 
     class Flock
