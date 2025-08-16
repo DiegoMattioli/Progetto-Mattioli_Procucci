@@ -81,22 +81,22 @@ TEST_CASE("Testing the Flock class")
         }
         SUBCASE ("testing the correct updating of the boids' velocities (five boids)")
         {
-            mp::Boid b2{2., 2., 1., 1.};
-            mp::Boid b3{2.5, 3., 1.2, 1.7};
-            mp::Boid b4{4.5, 2.3, 1.4, 5.};
+            mp::Boid b2{2., 2., 1, 0};
+            mp::Boid b3{3., 1., 0, 2};
+            mp::Boid b4{4., 2., 2, 0};
             f.add(b2); f.add(b3); f.add(b4);
             f.update_velocity();
             f.update_position(1);
-            CHECK(f.get_vx(0) == doctest::Approx(2.75));
-            CHECK(f.get_vy(0) == doctest::Approx(3.75));
-            CHECK(f.get_vx(1) == doctest::Approx(2.025));
-            CHECK(f.get_vy(1) == doctest::Approx(3.55));
-            CHECK(f.get_vx(2) == doctest::Approx(1.188));
-            CHECK(f.get_vy(2) == doctest::Approx(2.15));
-            CHECK(f.get_vx(3) == doctest::Approx(1.388));
-            CHECK(f.get_vy(3) == doctest::Approx(2.325));
-            CHECK(f.get_vx(4) == doctest::Approx(1.775));
-            CHECK(f.get_vy(4) == doctest::Approx(3.275));
+            CHECK(f.get_vx(0) == doctest::Approx(1.75));
+            CHECK(f.get_vy(0) == doctest::Approx(1.75));
+            CHECK(f.get_vx(1) == doctest::Approx(2.95833));
+            CHECK(f.get_vy(1) == doctest::Approx(3.7));
+            CHECK(f.get_vx(2) == doctest::Approx(1.075));
+            CHECK(f.get_vy(2) == doctest::Approx(1.));
+            CHECK(f.get_vx(3) == doctest::Approx(0.06667));
+            CHECK(f.get_vy(3) == doctest::Approx(1.08333));
+            CHECK(f.get_vx(4) == doctest::Approx(2.15));
+            CHECK(f.get_vy(4) == doctest::Approx(0.6));
 
         }
         
