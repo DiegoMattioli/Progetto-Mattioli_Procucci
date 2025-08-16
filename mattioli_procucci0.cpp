@@ -2,6 +2,7 @@
 #include <random>
 #include <cmath>
 #include <stdexcept>
+#include <iostream>
 
 namespace mp
 {
@@ -200,6 +201,18 @@ namespace mp
         else{throw std::runtime_error{"index out of range"};}
     }
 
-    double mp::Flock::get_mean_velocity(){return std::hypot(mean_vx_, mean_vy_);}
+    double mp::Flock::get_mean_velocity(Flock &f){return std::hypot(f.mean_vx_, f.mean_vy_);}
+    double mp::Flock::get_stddeviation_mean_velocity(Flock &f){
+        for (auto it = f.flock_.begin(); it < f.flock_.end(); ++it){
+            (*it).add_vx((*it).get_sumvx());
+            stddeviation_mean_vx += ((*it).vx()- mean_vx_) / (static_cast<double>(flock_.size()) - 1.0);
+            stddeviation_mean_vy += ((*it).vy()- mean_vy_) / (static_cast<double>(flock_.size()) - 1.0);
+        }
+        return std::hypot(f.stddeviation_mean_vx, f.stddeviation_mean_vy);
+    }
+    void mp::Flock::velocity_analisis (Flock &f) {
+        std::cout << "The flock's mean velocity is " <<f.get_mean_velocity(f);
+        std::cout << "The flock's standard deviation of its mean velocity is " <<f.get_stddeviation_mean_velocity(f);
+    }
     
 }
