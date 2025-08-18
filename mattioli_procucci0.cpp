@@ -181,9 +181,9 @@ namespace mp
                             (*it).add_vsepx(-((*itt).x() - (*it).x()));
                             (*it).add_vsepy(-((*itt).y() - (*it).y()));
                         }
-                        else{continue;}
-                        
+                        else{continue;}   
                     }
+                    (*it).mult_vsep(s_);
                 }
 
                 (*it).mult_vsep(s_);
