@@ -141,7 +141,7 @@ namespace mp{
         double get_mean_velocity(Flock &f);
         //functiom that returns the mean velocity of the boids in the flock
         double get_stddeviation_mean_velocity(Flock &f);
-        void velocity_analisis (Flock &f);
+        bool is_predator(int i);
     };
 };
 

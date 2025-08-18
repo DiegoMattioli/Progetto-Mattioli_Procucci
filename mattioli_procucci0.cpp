@@ -255,5 +255,14 @@ namespace mp
         }
         return std::hypot(f.stddeviation_mean_vx, f.stddeviation_mean_vy);
     }
+    bool mp::Flock::is_predator(int i)
+    {
+        auto it = (flock_.begin() + i);
+        if (it < flock_.end())
+        {
+            return (*it).predator();
+        }
+        else{throw std::runtime_error{"index out of range"};}
+    }
     
 }

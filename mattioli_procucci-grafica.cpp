@@ -36,7 +36,8 @@ namespace df
                     unsigned int y = static_cast<unsigned int>(std::floor(f.get_positiony(i)));
                     if (x <= 200 && y < 200)
                     {
-                        image.setPixel(x, y, sf::Color::White);
+                        if (f.is_predator(i) == 0){image.setPixel(x, y, sf::Color::White);}
+                        else{image.setPixel(x, y, sf::Color::Red);}
                     }
                 }
                 f.update_position(1);
@@ -88,8 +89,28 @@ namespace df
                         unsigned int y1 = static_cast<unsigned int>(std::floor(f1.get_positiony(i)));
                         if (x0 <= 200 && y0 < 200 && x1 < 200 && y1 < 200)
                         {
-                            image.setPixel(x0, y0, sf::Color::Magenta);
-                            image.setPixel(x1, y1, sf::Color::Cyan);
+                            if (f1.is_predator(i) == 0 && f0.is_predator(i) == 0)
+                            {
+                                image.setPixel(x0, y0, sf::Color::Magenta);
+                                image.setPixel(x1, y1, sf::Color::Cyan);
+                            }
+                            else if (f1.is_predator(i) == 0 && f0.is_predator(i) == 1)
+                            {
+                                image.setPixel(x0, y0, sf::Color::Red);
+                                image.setPixel(x1, y1, sf::Color::Cyan);
+                            }
+                            else if (f1.is_predator(i) == 1 && f0.is_predator(i) == 0)
+                            {
+                                image.setPixel(x0, y0, sf::Color::Magenta);
+                                image.setPixel(x1, y1, sf::Color::Red);
+                            }
+                            else
+                            {
+                                image.setPixel(x0, y0, sf::Color::Red);
+                                image.setPixel(x1, y1, sf::Color::Red);
+                            }
+                            
+                            
                         }
                     }
                     else if (i >= f0.size() && i < f1.size())
@@ -98,7 +119,8 @@ namespace df
                         unsigned int y1 = static_cast<unsigned int>(std::floor(f1.get_positiony(i)));
                         if (x1 < 200 && y1 < 200)
                         {
-                            image.setPixel(x1, y1, sf::Color::Cyan);
+                            if (f1.is_predator(i) == 0){image.setPixel(x1, y1, sf::Color::Cyan);}
+                            else{image.setPixel(x1, y1, sf::Color::Red);}
                         }
                     }
                     else
@@ -107,7 +129,8 @@ namespace df
                         unsigned int y0 = static_cast<unsigned int>(std::floor(f0.get_positiony(i)));
                         if (x0 < 200 && y0 < 200)
                         {
-                            image.setPixel(x0, y0, sf::Color::Magenta);
+                            if (f0.is_predator(i) == 0){image.setPixel(x0, y0, sf::Color::Magenta);}
+                            else{image.setPixel(x0, y0, sf::Color::Red);}
                         }
                     }
                     
