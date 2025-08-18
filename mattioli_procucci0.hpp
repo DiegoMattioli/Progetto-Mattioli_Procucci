@@ -29,7 +29,7 @@ namespace mp{
     class Boid
     {
         private:
-        std::vector<int> nearby_{};
+        std::vector<int> nearby_{}; //index of nearby boids
         double vsepx_{0.};
         double vsepy_{0.};
         //modification to the boid's velocity after applying the rule of separation
@@ -47,15 +47,18 @@ namespace mp{
         double vx_;
         double vy_;
         //boid's coordinates
+
+        bool predator_;
     
         public:
-        Boid(double x, double y, double vx, double vy): x_{x}, y_{y}, vx_{vx}, vy_{vy} {}
+        Boid(double x, double y, double vx, double vy, bool predator): x_{x}, y_{y}, vx_{vx}, vy_{vy}, predator_{predator} {}
         double x()const;
         double y()const;
         //return the  coordinates of the boid's position
         double vx()const;
         double vy()const;
         //return the coordinates of the boid's velocity
+        bool predator()const;
 
         void add_x(double const& add);
         void add_y(double const& add);

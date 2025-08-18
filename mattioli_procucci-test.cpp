@@ -8,8 +8,8 @@ TEST_CASE("Testing the Flock class")
 {
     mp::Parameters p{3., 2., 0.5, 0.1, 0.2};
     mp::Flock f{p};
-    mp::Boid b{0,0,2,2};
-    mp::Boid b1{1,1,3,4};
+    mp::Boid b{0., 0., 2., 2., 0};
+    mp::Boid b1{1., 1., 3., 4., 0};
     f.add(b);
     f.add(b1);
      
@@ -34,7 +34,7 @@ TEST_CASE("Testing the Flock class")
         CHECK(f.get_positionx(1) == 154.);
         CHECK(f.get_positiony(1) == 5.);
 
-        mp::Boid b2{3., 3., 2.1, 1.4};
+        mp::Boid b2{3., 3., 2.1, 1.4, 0};
         f.add(b2);
         f.update_position(3);
         CHECK(f.get_positionx(2) == doctest::Approx(9.3));
@@ -68,7 +68,7 @@ TEST_CASE("Testing the Flock class")
 
         SUBCASE("testing the correct updating of the boids' velocities (three boids)")
         {
-            mp::Boid b2{2., 2., 1., 1.};
+            mp::Boid b2{2., 2., 1., 1., 0};
             f.add(b2);
             f.update_velocity();
             f.update_position(1);
@@ -81,9 +81,9 @@ TEST_CASE("Testing the Flock class")
         }
         SUBCASE ("testing the correct updating of the boids' velocities (five boids)")
         {
-            mp::Boid b2{2., 2., 1, 0};
-            mp::Boid b3{3., 1., 0, 2};
-            mp::Boid b4{4., 2., 2, 0};
+            mp::Boid b2{2., 2., 1., 0., 0};
+            mp::Boid b3{3., 1., 0., 2., 0};
+            mp::Boid b4{4., 2., 2., 0., 0};
             f.add(b2); f.add(b3); f.add(b4);
             f.update_velocity();
             f.update_position(1);

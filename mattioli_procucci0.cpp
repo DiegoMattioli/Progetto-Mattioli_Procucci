@@ -10,6 +10,7 @@ namespace mp
     double mp::Boid::y()const{return y_;}
     double mp::Boid::vx()const{return vx_;}
     double mp::Boid::vy()const{return vy_;}
+    bool mp::Boid::predator()const{return predator_;}
     void mp::Boid::add_x(double const& add){{x_ += add;}}
     void mp::Boid::add_y(double const& add){{y_ += add;}}
     void mp::Boid::add_vx(double const& add){{vx_ += add;}}
@@ -61,7 +62,7 @@ namespace mp
             double rand_y{position(eng)};
             double rand_vx{speed(eng)};
             double rand_vy{speed(eng)};
-            Boid boid{rand_x, rand_y, rand_vx, rand_vy};
+            Boid boid{rand_x, rand_y, rand_vx, rand_vy, 0};
             flock_.push_back(boid);
         }
     }
@@ -111,43 +112,87 @@ namespace mp
 
     void mp::Flock::update_velocity()
     {
-        for (auto it = flock_.begin(); it < flock_.end(); ++it)
+        if (flock_.size() > 1)
         {
-            (*it).reset();
-            double x_cm{0};
-            double y_cm{0};
-
-            for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
+            for (auto it = flock_.begin(); it < flock_.end(); ++it)
             {
-                double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
-                if (distance < d_ && it != itt)
+                if ((*it).predator() == false)
                 {
-                    (*it).add_nearby(static_cast<int>(itt - flock_.begin()));
-
-                    x_cm += (*itt).x();
-                    y_cm += (*itt).y();
-
-                    if (distance < ds_)
+                    (*it).reset();
+                    double x_cm{0.};
+                    double y_cm{0.};
+                    
+                    for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
                     {
-                        (*it).add_vsepx(-((*itt).x() - (*it).x()));
-                        (*it).add_vsepy(-((*itt).y() - (*it).y()));
+                        if ((*itt).predator() == false)
+                        {
+                            double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
+                            if (distance < d_ && it != itt)
+                            {
+                                (*it).add_nearby(static_cast<int>(itt - flock_.begin()));
+                                
+                                x_cm += (*itt).x();
+                                y_cm += (*itt).y();
+                                
+                                if (distance < ds_)
+                                {
+                                    (*it).add_vsepx(-((*itt).x() - (*it).x()));
+                                    (*it).add_vsepy(-((*itt).y() - (*it).y()));
+                                }
+                            }
+                            
+                            (*it).add_valigx((*itt).vx() - (*it).vx());
+                            (*it).add_valigy((*itt).vy() - (*it).vy());
+                        }
+
+                        else
+                        {
+                            double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
+                            if (distance < d_ && it != itt)
+                            {
+                                (*it).add_vsepx(-((*itt).x() - (*it).x()));
+                                (*it).add_vsepy(-((*itt).y() - (*it).y()));
+                            }
+                            
+                        }
+                        
+                    }
+                
+                if ((*it).get_nearbysize() != 0)
+                    {
+                        (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
+                        (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
                     }
                 }
-                
-                (*it).add_valigx((*itt).vx() - (*it).vx());
-                (*it).add_valigy((*itt).vy() - (*it).vy());
-            }
 
-            if ((*it).get_nearbysize() != 0)
-            {
-                (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
-                (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
+                else
+                {
+                    (*it).reset();
+                    for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
+                    {
+                        double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
+                        if ((*itt).predator() == false && distance < d_)
+                        {
+                            (*it).add_vsepx((*itt).x() - (*it).x());
+                            (*it).add_vsepy((*itt).y() - (*it).y());
+                        }
+                        else if ((*itt).predator() == true)
+                        {
+                            (*it).add_vsepx(-((*itt).x() - (*it).x()));
+                            (*it).add_vsepy(-((*itt).y() - (*it).y()));
+                        }
+                        else{continue;}
+                        
+                    }
+                }
+
+                (*it).mult_vsep(s_);
+                (*it).mult_valig(a_/(static_cast<double>(flock_.size())-1.));
+                (*it).mult_vcohe(c_);
             }
-            (*it).mult_vsep(s_);
-            if (flock_.size() >= 2){(*it).mult_valig(a_/(static_cast<double>(flock_.size())-1.));}
-            else{(*it).mult_valig(0);}
-            (*it).mult_vcohe(c_);
+        
         }
+        else if (flock_.size() <= 1){throw std::runtime_error{"Must add at least two boid to the flock"};}
     }
 
     int mp::Flock::size(){return static_cast<int>(flock_.size());}
@@ -209,10 +254,6 @@ namespace mp
             stddeviation_mean_vy += ((*it).vy()- mean_vy_) / (static_cast<double>(flock_.size()) - 1.0);
         }
         return std::hypot(f.stddeviation_mean_vx, f.stddeviation_mean_vy);
-    }
-    void mp::Flock::velocity_analisis (Flock &f) {
-        std::cout << "The flock's mean velocity is " <<f.get_mean_velocity(f);
-        std::cout << "The flock's standard deviation of its mean velocity is " <<f.get_stddeviation_mean_velocity(f);
     }
     
 }
