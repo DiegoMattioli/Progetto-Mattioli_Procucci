@@ -39,6 +39,7 @@ int main() {
       f0.add(n);
       f1.add(20);
       df::draw_flock(f0, f1);
+      std::cout << "\nMean velocity:\t" << f0.get_mean_velocity() << " ± " << f0.get_stddeviation() << "\n";
     }   
  } 
  catch (std::exception const& e) {

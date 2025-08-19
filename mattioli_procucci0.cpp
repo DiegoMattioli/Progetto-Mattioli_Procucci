@@ -2,7 +2,6 @@
 #include <random>
 #include <cmath>
 #include <stdexcept>
-#include <iostream>
 
 namespace mp
 {
@@ -133,6 +132,10 @@ namespace mp
                     double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
                     if (distance < d_ && it != itt)
                     {
+                        
+                        (*it).add_valigx((*itt).vx() - (*it).vx());
+                        (*it).add_valigy((*itt).vy() - (*it).vy());
+
                         (*it).add_nearby(static_cast<int>(itt - flock_.begin()));
                                 
                         x_cm += (*itt).x();
@@ -143,17 +146,18 @@ namespace mp
                             (*it).add_vsepx(-((*itt).x() - (*it).x()));
                             (*it).add_vsepy(-((*itt).y() - (*it).y()));
                         }
-                    }
 
-                    (*it).add_valigx((*itt).vx() - (*it).vx());
-                    (*it).add_valigy((*itt).vy() - (*it).vy());
+                    }
                 }
                 
                 if ((*it).get_nearbysize() != 0)
                 {
                     (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
                     (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
+                    (*it).mult_valig(a_/(*it).get_nearbysize());
                 }
+                (*it).mult_vsep(s_);
+                (*it).mult_vcohe(c_);
             }
         }
         else if (flock_.size() <= 1){throw std::runtime_error{"Must add at least two boid to the flock"};}
@@ -210,14 +214,29 @@ namespace mp
         else{throw std::runtime_error{"index out of range"};}
     }
 
-    double mp::Flock::get_mean_velocity(Flock &f){return std::hypot(f.mean_vx_, f.mean_vy_);}
-    double mp::Flock::get_stddeviation_mean_velocity(Flock &f){
-        for (auto it = f.flock_.begin(); it < f.flock_.end(); ++it){
-            (*it).add_vx((*it).get_sumvx());
-            stddeviation_mean_vx += ((*it).vx()- mean_vx_) / (static_cast<double>(flock_.size()) - 1.0);
-            stddeviation_mean_vy += ((*it).vy()- mean_vy_) / (static_cast<double>(flock_.size()) - 1.0);
+    double mp::Flock::get_mean_velocity(){return std::hypot(mean_vx_, mean_vy_);}
+    double mp::Flock::get_stddeviation()
+    {
+        stddeviation_vx_ = 0.;
+        stddeviation_vy_ = 0.;
+        double sigma_squarex{0.};
+        double sigma_squarey{0.};
+        double mean_v{std::hypot(mean_vx_, mean_vy_)};
+        for (auto it = flock_.begin(); it < flock_.end(); ++it)
+        {
+            sigma_squarex += std::pow((*it).vx() - mean_vx_, 2);
+            sigma_squarey += std::pow((*it).vy() - mean_vy_, 2);
         }
-        return std::hypot(f.stddeviation_mean_vx, f.stddeviation_mean_vy);
+        if ((flock_.size() > 1))
+        {
+            sigma_squarex /= (static_cast<double>(flock_.size()) * (static_cast<double>(flock_.size()) - 1.0));
+            sigma_squarey /= (static_cast<double>(flock_.size()) * (static_cast<double>(flock_.size()) - 1.0));
+            double sigma{std::pow(sigma_squarex*mean_vx_*mean_vx_ + sigma_squarey*mean_vy_*mean_vy_, 0.5)/mean_v};
+
+            return sigma;
+        }
+        else{throw std::runtime_error{"Add at least two boids to the flock in ordwr to calculate the standard deviation of the mean velocity"};}
+        
     }
     
 }

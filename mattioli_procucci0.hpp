@@ -103,8 +103,8 @@ namespace mp{
 
         double mean_vx_;
         double mean_vy_;
-        double stddeviation_mean_vx {};
-        double stddeviation_mean_vy {};
+        double stddeviation_vx_ {};
+        double stddeviation_vy_ {};
         //coordinates of the mean velocity and its standard deviation of the boids in the flock
 
         public:
@@ -137,9 +137,9 @@ namespace mp{
         int get_nearby_size(int i);
         //function that returns the amount of boids close to the i th boid
 
-        double get_mean_velocity(Flock &f);
+        double get_mean_velocity();
         //functiom that returns the mean velocity of the boids in the flock
-        double get_stddeviation_mean_velocity(Flock &f);
+        double get_stddeviation();
     };
 };
 
