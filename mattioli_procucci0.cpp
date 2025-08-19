@@ -10,7 +10,6 @@ namespace mp
     double mp::Boid::y()const{return y_;}
     double mp::Boid::vx()const{return vx_;}
     double mp::Boid::vy()const{return vy_;}
-    bool mp::Boid::predator()const{return predator_;}
     void mp::Boid::add_x(double const& add){{x_ += add;}}
     void mp::Boid::add_y(double const& add){{y_ += add;}}
     void mp::Boid::add_vx(double const& add){{vx_ += add;}}
@@ -27,22 +26,28 @@ namespace mp
         vcohey_ = 0.;
     }
 
-    void mp::Boid::add_vsepx(double const& add){vsepx_ += add;}
-    void mp::Boid::add_vsepy(double const& add){vsepy_ += add;}
-    void mp::Boid::add_valigx(double const& add){valigx_ += add;}
-    void mp::Boid::add_valigy(double const& add){valigy_ += add;}
-    void mp::Boid::add_vcohex(double const& add){vcohex_ += add;}
-    void mp::Boid::add_vcohey(double const& add){vcohey_ += add;}
+    void mp::Boid::add_vsepx(double add){vsepx_ += add;}
+    void mp::Boid::add_vsepy(double add){vsepy_ += add;}
+    void mp::Boid::add_valigx(double add){valigx_ += add;}
+    void mp::Boid::add_valigy(double add){valigy_ += add;}
+    void mp::Boid::add_vcohex(double add){vcohex_ += add;}
+    void mp::Boid::add_vcohey(double add){vcohey_ += add;}
 
-    void mp::Boid::mult_vsep(double const& multiply){
+    void mp::Boid::mult_vsep(double multiply){
         vsepx_ *= multiply;
         vsepy_ *= multiply;}
-    void mp::Boid::mult_valig(double const& multiply){
+    void mp::Boid::mult_valig(double multiply){
         valigx_ *= multiply;
         valigy_ *= multiply;}
-    void mp::Boid::mult_vcohe(double const& multiply){
+    void mp::Boid::mult_vcohe(double multiply){
         vcohex_ *= multiply;
         vcohey_ *= multiply;
+    }
+
+    void mp::Boid::half_v()
+    {
+        vx_ *= 0.5;
+        vy_ *= 0.5;
     }
 
     double mp::Boid::get_sumvx()const{return (valigx_ + vsepx_ +vcohex_);}
@@ -62,7 +67,7 @@ namespace mp
             double rand_y{position(eng)};
             double rand_vx{speed(eng)};
             double rand_vy{speed(eng)};
-            Boid boid{rand_x, rand_y, rand_vx, rand_vy, 0};
+            Boid boid{rand_x, rand_y, rand_vx, rand_vy};
             flock_.push_back(boid);
         }
     }
@@ -80,6 +85,7 @@ namespace mp
         {
             for (auto it = flock_.begin(); it < flock_.end(); ++it)
             {
+                double vtot{std::hypot((*it).vx(), (*it).vy())};
                 (*it).add_vx((*it).get_sumvx());
                 mean_vx_ += (*it).vx() / static_cast<double>(flock_.size());
                 (*it).add_x(refresh_rate * (*it).vx());
@@ -104,10 +110,12 @@ namespace mp
                 {   
                     (*it).add_y(-200. * std::floor((*it).y() / 200.));
                 }
+
+                if (vtot > 30.){(*it).half_v();}
+                
             }
         }
         else{throw std::runtime_error{"The flock must contain at least one boid"};}
-        
     }
 
     void mp::Flock::update_velocity()
@@ -116,81 +124,37 @@ namespace mp
         {
             for (auto it = flock_.begin(); it < flock_.end(); ++it)
             {
-                if ((*it).predator() == false)
-                {
-                    (*it).reset();
-                    double x_cm{0.};
-                    double y_cm{0.};
+                (*it).reset();
+                double x_cm{0.};
+                double y_cm{0.};
                     
-                    for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
-                    {
-                        if ((*itt).predator() == false)
-                        {
-                            double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
-                            if (distance < d_ && it != itt)
-                            {
-                                (*it).add_nearby(static_cast<int>(itt - flock_.begin()));
-                                
-                                x_cm += (*itt).x();
-                                y_cm += (*itt).y();
-                                
-                                if (distance < ds_)
-                                {
-                                    (*it).add_vsepx(-((*itt).x() - (*it).x()));
-                                    (*it).add_vsepy(-((*itt).y() - (*it).y()));
-                                }
-                            }
-                            
-                            (*it).add_valigx((*itt).vx() - (*it).vx());
-                            (*it).add_valigy((*itt).vy() - (*it).vy());
-                        }
-
-                        else
-                        {
-                            double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
-                            if (distance < d_ && it != itt)
-                            {
-                                (*it).add_vsepx(-((*itt).x() - (*it).x()));
-                                (*it).add_vsepy(-((*itt).y() - (*it).y()));
-                            }
-                            
-                        }
-                        
-                    }
-                
-                if ((*it).get_nearbysize() != 0)
-                    {
-                        (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
-                        (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
-                    }
-                }
-
-                else
+                for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
                 {
-                    (*it).reset();
-                    for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
+                    double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
+                    if (distance < d_ && it != itt)
                     {
-                        double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
-                        if ((*itt).predator() == false && distance < d_)
-                        {
-                            (*it).add_vsepx((*itt).x() - (*it).x());
-                            (*it).add_vsepy((*itt).y() - (*it).y());
-                        }
-                        else if ((*itt).predator() == true)
+                        (*it).add_nearby(static_cast<int>(itt - flock_.begin()));
+                                
+                        x_cm += (*itt).x();
+                        y_cm += (*itt).y();
+                                
+                        if (distance < ds_)
                         {
                             (*it).add_vsepx(-((*itt).x() - (*it).x()));
                             (*it).add_vsepy(-((*itt).y() - (*it).y()));
                         }
-                        else{continue;}   
                     }
-                    (*it).mult_vsep(s_);
-                }
 
-                (*it).mult_vsep(s_);
-                (*it).mult_valig(a_/(static_cast<double>(flock_.size())-1.));
-                (*it).mult_vcohe(c_);
+                    (*it).add_valigx((*itt).vx() - (*it).vx());
+                    (*it).add_valigy((*itt).vy() - (*it).vy());
+                }
+                
+                if ((*it).get_nearbysize() != 0)
+                {
+                    (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
+                    (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
+                }
             }
-        
         }
         else if (flock_.size() <= 1){throw std::runtime_error{"Must add at least two boid to the flock"};}
     }
@@ -254,15 +218,6 @@ namespace mp
             stddeviation_mean_vy += ((*it).vy()- mean_vy_) / (static_cast<double>(flock_.size()) - 1.0);
         }
         return std::hypot(f.stddeviation_mean_vx, f.stddeviation_mean_vy);
-    }
-    bool mp::Flock::is_predator(int i)
-    {
-        auto it = (flock_.begin() + i);
-        if (it < flock_.end())
-        {
-            return (*it).predator();
-        }
-        else{throw std::runtime_error{"index out of range"};}
     }
     
 }
