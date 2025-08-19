@@ -47,18 +47,15 @@ namespace mp{
         double vx_;
         double vy_;
         //boid's coordinates
-
-        bool predator_;
     
         public:
-        Boid(double x, double y, double vx, double vy, bool predator): x_{x}, y_{y}, vx_{vx}, vy_{vy}, predator_{predator} {}
+        Boid(double x, double y, double vx, double vy): x_{x}, y_{y}, vx_{vx}, vy_{vy} {}
         double x()const;
         double y()const;
         //return the  coordinates of the boid's position
         double vx()const;
         double vy()const;
         //return the coordinates of the boid's velocity
-        bool predator()const;
 
         void add_x(double const& add);
         void add_y(double const& add);
@@ -70,19 +67,21 @@ namespace mp{
         void reset();
         //resets to 0 the values of vsepx_, vsepy_, valigx_, valigy_, vcohex_, vcohey_
 
-        void add_vsepx(double const& add);
-        void add_vsepy(double const& add);
+        void add_vsepx(double add);
+        void add_vsepy(double add);
         //modifies vsepx_, vsepy_ (addition)
-        void add_valigx(double const& add);
-        void add_valigy(double const& add);
+        void add_valigx(double add);
+        void add_valigy(double add);
         //modifies valig_, valigy_ (addition)
-        void add_vcohex(double const& add);
-        void add_vcohey(double const& add);
+        void add_vcohex(double add);
+        void add_vcohey(double add);
         //modifies vcohex_, vcohey_ (addition)
 
-        void mult_vsep(double const& mult); //modifies vsepx_, vsepy_ (multiplication)
-        void mult_valig(double const& mult); //modifies valig_, valigy_ (multiplication)
-        void mult_vcohe(double const& mult); //modifies vcohex_, vcohey_ (multiplication)
+        void mult_vsep(double mult); //modifies vsepx_, vsepy_ (multiplication)
+        void mult_valig(double mult); //modifies valig_, valigy_ (multiplication)
+        void mult_vcohe(double mult); //modifies vcohex_, vcohey_ (multiplication)
+
+        void half_v();
 
         double get_sumvx()const; //adds toghether vsepx_, valigx_, vcohex_ and returns the sum
         double get_sumvy()const; //adds toghether vsepy_, valigy_, vcohey_ and returns the sum
@@ -104,8 +103,8 @@ namespace mp{
 
         double mean_vx_;
         double mean_vy_;
-        double stddeviation_mean_vx {};
-        double stddeviation_mean_vy {};
+        double stddeviation_vx_ {};
+        double stddeviation_vy_ {};
         //coordinates of the mean velocity and its standard deviation of the boids in the flock
 
         public:
@@ -138,10 +137,9 @@ namespace mp{
         int get_nearby_size(int i);
         //function that returns the amount of boids close to the i th boid
 
-        double get_mean_velocity(Flock &f);
+        double get_mean_velocity();
         //functiom that returns the mean velocity of the boids in the flock
-        double get_stddeviation_mean_velocity(Flock &f);
-        void velocity_analisis (Flock &f);
+        double get_stddeviation();
     };
 };
 

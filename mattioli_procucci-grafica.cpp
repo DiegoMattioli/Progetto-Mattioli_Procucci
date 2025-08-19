@@ -10,7 +10,7 @@ namespace df
     {
         if (f.size() != 0)
         {
-            sf::RenderWindow window(sf::VideoMode(600,600), "Simulation of the flock's behaviour");
+            sf::RenderWindow window(sf::VideoMode(610,610), "Simulation of the flock's behaviour");
             sf::Texture texture;
             sf::Sprite sprite;
             window.setFramerateLimit(5);
@@ -29,7 +29,7 @@ namespace df
 
                 window.clear();
                 sf::Image image;
-                image.create(200, 200, sf::Color::Black);
+                image.create(201, 201, sf::Color::Black);
                 for (int i = 0; i < f.size(); ++i)
                 {
                     unsigned int x = static_cast<unsigned int>(std::floor(f.get_positionx(i)));
@@ -86,12 +86,14 @@ namespace df
                         unsigned int y0 = static_cast<unsigned int>(std::floor(f0.get_positiony(i)));
                         unsigned int x1 = static_cast<unsigned int>(std::floor(f1.get_positionx(i)));
                         unsigned int y1 = static_cast<unsigned int>(std::floor(f1.get_positiony(i)));
+                        //std::cout << f1.is_predator(i) << "\t" << f0.is_predator(i)<< "\n";
                         if (x0 <= 200 && y0 < 200 && x1 < 200 && y1 < 200)
                         {
                             image.setPixel(x0, y0, sf::Color::Magenta);
                             image.setPixel(x1, y1, sf::Color::Cyan);
                         }
                     }
+                    
                     else if (i >= f0.size() && i < f1.size())
                     {
                         unsigned int x1 = static_cast<unsigned int>(std::floor(f1.get_positionx(i)));
@@ -101,6 +103,7 @@ namespace df
                             image.setPixel(x1, y1, sf::Color::Cyan);
                         }
                     }
+
                     else
                     {
                         unsigned int x0 = static_cast<unsigned int>(std::floor(f0.get_positionx(i)));
@@ -124,7 +127,7 @@ namespace df
                 window.display();
             }
         }
-        
+
         else{throw std::runtime_error{"Flock is empity, add at least one Boid object to the flock"};}
     }
 }
