@@ -250,7 +250,7 @@ namespace mp
     double mp::Flock::get_stddeviation_mean_velocity(Flock &f){
         for (auto it = f.flock_.begin(); it < f.flock_.end(); ++it){
             (*it).add_vx((*it).get_sumvx());
-            stddeviation_mean_vx += ((*it).vx()- mean_vx_) / (static_cast<double>(flock_.size()) - 1.0);
+            stddeviation_mean_vx += (((*it).vx()- mean_vx_) / (static_cast<double>(flock_.size()) - 1.0));
             stddeviation_mean_vy += ((*it).vy()- mean_vy_) / (static_cast<double>(flock_.size()) - 1.0);
         }
         return std::hypot(f.stddeviation_mean_vx, f.stddeviation_mean_vy);
