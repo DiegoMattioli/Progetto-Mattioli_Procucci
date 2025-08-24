@@ -9,10 +9,10 @@ namespace mp
     double mp::Boid::y()const{return y_;}
     double mp::Boid::vx()const{return vx_;}
     double mp::Boid::vy()const{return vy_;}
-    void mp::Boid::add_x(double const& add){{x_ += add;}}
-    void mp::Boid::add_y(double const& add){{y_ += add;}}
-    void mp::Boid::add_vx(double const& add){{vx_ += add;}}
-    void mp::Boid::add_vy(double const& add){{vy_ += add;}}
+    void mp::Boid::add_x(double add){{x_ += add;}}
+    void mp::Boid::add_y(double add){{y_ += add;}}
+    void mp::Boid::add_vx(double add){{vx_ += add;}}
+    void mp::Boid::add_vy(double add){{vy_ += add;}}
 
     void mp::Boid::reset()
     {
@@ -78,41 +78,48 @@ namespace mp
 
     void mp::Flock::update_position(int refresh_rate)
     {
-        mean_vx_ = 0.;
-        mean_vy_ = 0.;
-        if (static_cast<int>(flock_.size()) > 0)
+        mean_v_ = 0.;
+        if (static_cast<int>(flock_.size()) > 1)
         {
             for (auto it = flock_.begin(); it < flock_.end(); ++it)
             {
-                double vtot{std::hypot((*it).vx(), (*it).vy())};
+                double vtot{std::hypot((*it).vx(), (*it).vy())}; //velocity of the boid
+
                 (*it).add_vx((*it).get_sumvx());
-                mean_vx_ += (*it).vx() / static_cast<double>(flock_.size());
                 (*it).add_x(refresh_rate * (*it).vx());
+                //if boids go out of bounds, they loop back around (x axis)
                 if ((*it).x() < 0.)
                 {
                     (*it).add_x(200. * std::floor((*it).x() / 200.));
+                    //if a boid goes out of the window from the left, it reappears on the right side of the window
                 }
                 else if ((*it).x() > 200.)
                 {
                     (*it).add_x(-200. * std::floor((*it).x() / 200.));
+                    //if a boid goes out of the window from the right, it reappears on the left side of the window
                 }
             
                 (*it).add_vy((*it).get_sumvy());
-                mean_vy_ += (*it).vy() / static_cast<double>(flock_.size());
+                mean_v_ += std::hypot((*it).vy(),(*it).vx());
                 (*it).add_y(refresh_rate * (*it).vy());
                 (*it).reset();
+                //if boids go out of bounds, they loop back around (y axis)
                 if ((*it).y() < 0.)
                 {
                     (*it).add_y(200. * std::floor((*it).y() / 200.));
+                    //if a boid goes out of the window from the left, it reappears on the right side of the window
                 }
                 else if ((*it).y() > 200.)
                 {   
                     (*it).add_y(-200. * std::floor((*it).y() / 200.));
+                    //if a boid goes out of the window from the right, it reappears on the left side of the window
                 }
 
                 if (vtot > 30.){(*it).half_v();}
+                //boids' velocity shold not be too large, if it goes above 30 it gest halved
                 
             }
+            mean_v_ /= static_cast<double>(flock_.size());
         }
         else{throw std::runtime_error{"The flock must contain at least one boid"};}
     }
@@ -130,11 +137,13 @@ namespace mp
                 for (auto itt = flock_.begin(); itt < flock_.end(); ++itt)
                 {
                     double distance{std::hypot(((*it).x() - (*itt).x()), (*it).y() - (*itt).y())};
+                    //calculating the distance between a boid (*it) and every other boid in the flock (*itt)
                     if (distance < d_ && it != itt)
                     {
                         
                         (*it).add_valigx((*itt).vx() - (*it).vx());
                         (*it).add_valigy((*itt).vy() - (*it).vy());
+                        //applying the rue of alignement
 
                         (*it).add_nearby(static_cast<int>(itt - flock_.begin()));
                                 
@@ -145,6 +154,7 @@ namespace mp
                         {
                             (*it).add_vsepx(-((*itt).x() - (*it).x()));
                             (*it).add_vsepy(-((*itt).y() - (*it).y()));
+                            //applying the rule of separation
                         }
 
                     }
@@ -154,13 +164,15 @@ namespace mp
                 {
                     (*it).add_vcohex((x_cm / ((*it).get_nearbysize())) - (*it).x());
                     (*it).add_vcohey((y_cm / ((*it).get_nearbysize())) - (*it).y());
+                    //applying the rule of cohesion
+
                     (*it).mult_valig(a_/(*it).get_nearbysize());
                 }
                 (*it).mult_vsep(s_);
                 (*it).mult_vcohe(c_);
             }
         }
-        else if (flock_.size() <= 1){throw std::runtime_error{"Must add at least two boid to the flock"};}
+        else {throw std::runtime_error{"Must add at least two boid to the flock"};}
     }
 
     int mp::Flock::size(){return static_cast<int>(flock_.size());}
@@ -214,28 +226,23 @@ namespace mp
         else{throw std::runtime_error{"index out of range"};}
     }
 
-    double mp::Flock::get_mean_velocity(){return std::hypot(mean_vx_, mean_vy_);}
+    double mp::Flock::get_mean_velocity(){return mean_v_;}
     double mp::Flock::get_stddeviation()
     {
-        stddeviation_vx_ = 0.;
-        stddeviation_vy_ = 0.;
-        double sigma_squarex{0.};
-        double sigma_squarey{0.};
-        double mean_v{std::hypot(mean_vx_, mean_vy_)};
+        stddeviation_v_ = 0.;
+
         for (auto it = flock_.begin(); it < flock_.end(); ++it)
         {
-            sigma_squarex += std::pow((*it).vx() - mean_vx_, 2);
-            sigma_squarey += std::pow((*it).vy() - mean_vy_, 2);
+            stddeviation_v_ += std::pow(std::hypot((*it).vx(),(*it).vy()) - mean_v_, 2);
         }
         if ((flock_.size() > 1))
         {
-            sigma_squarex /= (static_cast<double>(flock_.size()) * (static_cast<double>(flock_.size()) - 1.0));
-            sigma_squarey /= (static_cast<double>(flock_.size()) * (static_cast<double>(flock_.size()) - 1.0));
-            double sigma{std::pow(sigma_squarex*mean_vx_*mean_vx_ + sigma_squarey*mean_vy_*mean_vy_, 0.5)/mean_v};
+            stddeviation_v_ /= (static_cast<double>(flock_.size()) * (static_cast<double>(flock_.size()) - 1.0));
+            double sigma{std::pow(stddeviation_v_, 0.5)};
 
             return sigma;
         }
-        else{throw std::runtime_error{"Add at least two boids to the flock in ordwr to calculate the standard deviation of the mean velocity"};}
+        else{throw std::runtime_error{"Add at least two boids to the flock in order to calculate the standard deviation of the mean velocity"};}
         
     }
     

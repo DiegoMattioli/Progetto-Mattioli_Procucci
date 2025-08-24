@@ -6,11 +6,16 @@
 
 int main() {
   try {
-    double d, ds, a, c, s;
+    double d;
+    double ds;
+    double a;
+    double c;
+    double s;
     int n;
-    std::cout << "\nInsert the number of Boids:\t";
+    std::cout << "\nInsert the number of Boids (must be an integer greater than 1):\t";
     std::cin >> n;
-    if (n < 0){
+    if (n <= 1)
+    {
        throw std::runtime_error{
           "Inserted an invalid value for the number of boids"};
      }
@@ -28,7 +33,7 @@ int main() {
     if (d < 0 || (ds < 0 || ds > d) || (a < 0 && a > 1) ||(c < 0 && c > 1) || (s < 0 && s > 1))
     {
       throw std::runtime_error
-      {"\nInserted an invalid value for one of the parameters, all parameters must \n be between 0 and 1"};
+      {"\nInserted an invalid value for one of the parameters:\n All parameters must be between 0 and 1;\nThe value of ds must be inferion to d"};
     }
     else
     {

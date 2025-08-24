@@ -57,11 +57,11 @@ namespace mp{
         double vy()const;
         //return the coordinates of the boid's velocity
 
-        void add_x(double const& add);
-        void add_y(double const& add);
+        void add_x(double add);
+        void add_y(double add);
         //modifies the coordinates of the boid's position
-        void add_vx(double const& add);
-        void add_vy(double const& add);
+        void add_vx(double add);
+        void add_vy(double add);
         //modifies the coordinates of the boid's velocity
 
         void reset();
@@ -101,10 +101,8 @@ namespace mp{
         double c_;
         //parameters fo the flock (defined in the struct mp::Parameters)
 
-        double mean_vx_;
-        double mean_vy_;
-        double stddeviation_vx_ {};
-        double stddeviation_vy_ {};
+        double mean_v_;
+        double stddeviation_v_ {};
         //coordinates of the mean velocity and its standard deviation of the boids in the flock
 
         public:
@@ -140,6 +138,7 @@ namespace mp{
         double get_mean_velocity();
         //functiom that returns the mean velocity of the boids in the flock
         double get_stddeviation();
+        //functiom that returns the standard deviation of the mean velocity of the boids in the flock
     };
 };
 

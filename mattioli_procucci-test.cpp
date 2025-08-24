@@ -8,9 +8,13 @@ TEST_CASE("Testing the Flock class")
 {
     mp::Parameters p{90., 10., 0.5, 0.5, 0.5};
     mp::Flock f{p};
+    CHECK_THROWS(f.update_position(1));
+    CHECK_THROWS(f.update_velocity());
     mp::Boid b{0., 0., 2., 2.};
     mp::Boid b1{1., 1., 3., 4.};
     f.add(b);
+    CHECK_THROWS(f.update_position(1));
+    CHECK_THROWS(f.update_velocity());
     f.add(b1);
      
     SUBCASE("Testing the add function")
@@ -50,6 +54,7 @@ TEST_CASE("Testing the Flock class")
             f.update_velocity();
             CHECK(f.get_nearby_size(0) == 1);
             CHECK(f.get_nearby_size(1) == 1);
+            CHECK(f.get_nearby_size(2) == 0);
             CHECK_THROWS(f.get_nearby_size(3));
             f.update_position(10);
             f.update_velocity();
