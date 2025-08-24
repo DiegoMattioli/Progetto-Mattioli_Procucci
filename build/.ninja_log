@@ -1,0 +1,16 @@
+# ninja log v5
+8	3846	1754751428674575200	CMakeFiles/progg.dir/Release/main.cpp.o	e6c93929b049b5b0
+13	4930	1754751429754761600	CMakeFiles/progg.dir/Release/mattioli_procucci0.cpp.o	d0b40b16731b66e3
+22	5284	1754751429788046400	CMakeFiles/progetto.t.dir/Release/mattioli_procucci0.cpp.o	d047e9fad2ea2dbd
+4932	5588	1754751430438342000	Release/progg	631af6d5979674e4
+17	17281	1754751442141253700	CMakeFiles/progetto.t.dir/Release/mattioli_procucci-test.cpp.o	acd58b229252b51d
+17285	17562	1754751442425646900	Release/progetto.t	f8f982d3eeecc6f2
+11	383	0	CMakeFiles/Release/test.util	f3f48701cc61716b
+7	140	0	CMakeFiles/Release/test.util	f3f48701cc61716b
+9	4464	1754752230759328800	CMakeFiles/progg.dir/Debug/main.cpp.o	126e2ac1ed4b8686
+25	5675	1754752232026986400	CMakeFiles/progetto.t.dir/Debug/mattioli_procucci0.cpp.o	915201e895025acc
+13	5817	1754752232207594800	CMakeFiles/progg.dir/Debug/mattioli_procucci0.cpp.o	2692e9b6bd3283e0
+5818	6352	1754752232736669800	Debug/progg	bbf34cc6fbfe8d39
+18	20996	1754752247366820200	CMakeFiles/progetto.t.dir/Debug/mattioli_procucci-test.cpp.o	edfcd73571109abe
+20996	21635	1754752248024676200	Debug/progetto.t	a94156ac451fee7
+11	351	0	CMakeFiles/Debug/test.util	302b9d2fab762551

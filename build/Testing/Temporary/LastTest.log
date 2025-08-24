@@ -1,0 +1,24 @@
+Start testing: Aug 09 17:11 CEST
+----------------------------------------------------------
+1/1 Testing: progetto.t
+1/1 Test: progetto.t
+Command: "/home/dmattioli/labs/progetto/Progetto-Mattioli_Procucci/build/Debug/progetto.t"
+Directory: /home/dmattioli/labs/progetto/Progetto-Mattioli_Procucci/build
+"progetto.t" start time: Aug 09 17:11 CEST
+Output:
+----------------------------------------------------------
+[doctest] doctest version is "2.4.11"
+[doctest] run with "--help" for options
+===============================================================================
+[doctest] test cases:  1 |  1 passed | 0 failed | 0 skipped
+[doctest] assertions: 28 | 28 passed | 0 failed |
+[doctest] Status: SUCCESS!
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"progetto.t" end time: Aug 09 17:11 CEST
+"progetto.t" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Aug 09 17:11 CEST
